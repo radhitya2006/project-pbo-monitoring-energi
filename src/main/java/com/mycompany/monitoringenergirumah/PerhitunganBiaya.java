@@ -10,4 +10,9 @@ package com.mycompany.monitoringenergirumah;
  */
 public class PerhitunganBiaya {
     
+    private double tarifPerKwh;
+    private double persentasePajak;
+    
+    
+    
 }
