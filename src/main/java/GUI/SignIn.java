@@ -48,8 +48,10 @@ public class SignIn extends javax.swing.JFrame {
 
         jLabel2.setText("Sign in untuk melanjutkan ke akunmu");
 
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel3.setText("Email");
 
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel4.setText("Password");
 
         jTextField1.addActionListener(this::jTextField1ActionPerformed);
