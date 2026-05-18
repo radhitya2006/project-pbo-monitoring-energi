@@ -17,7 +17,7 @@ public class AC extends PerangkatListrik{
         this.cop = cop;
     }
     
-    public AC(String nama, inr daya, double lamaPemakaian){
+    public AC(String nama, int daya, double lamaPemakaian){
         this(nama, daya, lamaPemakaian, 3.0);
     }
     

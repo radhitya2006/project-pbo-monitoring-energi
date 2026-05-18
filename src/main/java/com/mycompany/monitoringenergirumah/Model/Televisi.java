@@ -59,4 +59,3 @@ public class Televisi extends PerangkatListrik{
         return "[Televisi ] " + super.toString();
     }
 }
-}
