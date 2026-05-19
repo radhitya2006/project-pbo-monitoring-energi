@@ -4,10 +4,25 @@
  */
 package com.mycompany.monitoringenergirumah.Service;
 
+import com.mycompany.monitoringenergirumah.Model.User;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author ASUS
  */
 public class AuthService {
+    
+    private final List<User> daftarUser = new ArrayList<>();
+    private User currentUser = null;
+    
+    public AuthService() {
+        // Akun demo bawaan untuk keperluan testing
+        daftarUser.add(new User("Admin Demo", "admin@email.com", "admin123"));
+    }
+    
+     
     
 }
