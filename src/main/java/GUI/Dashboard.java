@@ -184,6 +184,8 @@ public class Dashboard extends javax.swing.JFrame {
         jLabel12.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel12.setText("Grafik Penggunaan Energi");
 
+        jComboBox1.setBackground(new java.awt.Color(0, 204, 255));
+        jComboBox1.setForeground(new java.awt.Color(255, 255, 255));
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "7 Hari Terakhir", "14 Hari Terakhir", "21 Hari Terakhir", "30 Hari Terakhir" }));
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
@@ -235,8 +237,11 @@ public class Dashboard extends javax.swing.JFrame {
 
         jLabel14.setText("Data Penggunaan Terakhir");
 
+        jButton7.setBackground(new java.awt.Color(0, 204, 255));
         jButton7.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jButton7.setForeground(new java.awt.Color(255, 255, 255));
         jButton7.setText("Lihat Semua Data");
+        jButton7.setBorderPainted(false);
         jButton7.addActionListener(this::jButton7ActionPerformed);
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
@@ -268,8 +273,11 @@ public class Dashboard extends javax.swing.JFrame {
         jLabel15.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel15.setText("Status Perangkat");
 
+        jButton8.setBackground(new java.awt.Color(0, 204, 255));
         jButton8.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jButton8.setForeground(new java.awt.Color(255, 255, 255));
         jButton8.setText("Lihat Semua Perangkat");
+        jButton8.setBorderPainted(false);
 
         javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
         jPanel10.setLayout(jPanel10Layout);
@@ -364,7 +372,7 @@ public class Dashboard extends javax.swing.JFrame {
         jButton1.setBackground(new java.awt.Color(0, 204, 255));
         jButton1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
-        jButton1.setText("Dashboard");
+        jButton1.setText("Beranda");
         jButton1.addActionListener(this::jButton1ActionPerformed);
 
         jButton2.setBackground(new java.awt.Color(0, 204, 255));
