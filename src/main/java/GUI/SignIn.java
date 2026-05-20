@@ -68,12 +68,14 @@ public class SignIn extends javax.swing.JFrame {
         jButton2.setForeground(new java.awt.Color(255, 255, 255));
         jButton2.setText("Sign In");
         jButton2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 204, 255)));
+        jButton2.setBorderPainted(false);
 
         jLabel5.setText("Belum punya akun?");
 
         jButton3.setBackground(new java.awt.Color(0, 204, 255));
         jButton3.setForeground(new java.awt.Color(255, 255, 255));
         jButton3.setText("Sign up");
+        jButton3.setBorderPainted(false);
 
         jCheckBox1.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         jCheckBox1.setText("Tampilkan Password");
