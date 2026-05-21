@@ -4,6 +4,8 @@
  */
 package GUI;
 
+import com.mycompany.monitoringenergirumah.Service.AuthService;
+import com.mycompany.monitoringenergirumah.Service.AuthService.LoginResult;
 
 /**
  *
@@ -13,11 +15,18 @@ public class SignIn extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(SignIn.class.getName());
 
+    private AuthService authService;
+    
+    public SignIn() {
+        this(new AuthService());
+    }
     /**
      * Creates new form SignIn
      */
-    public SignIn() {
+    public SignIn(AuthService authService) {
+        this.authService = authService;
         initComponents();
+        initLogic();
     }
 
     /**
@@ -156,7 +165,7 @@ public class SignIn extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void emailFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emailFieldActionPerformed
-        // TODO add your handling code here:
+        passField.requestFocus();
     }//GEN-LAST:event_emailFieldActionPerformed
 
     private void btnPassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPassActionPerformed
@@ -206,4 +215,8 @@ public class SignIn extends javax.swing.JFrame {
     private javax.swing.JPasswordField passField;
     private javax.swing.JCheckBox showPass;
     // End of variables declaration//GEN-END:variables
+
+    private void initLogic() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }
