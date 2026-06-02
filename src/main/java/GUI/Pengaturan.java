@@ -387,6 +387,8 @@ public class Pengaturan extends javax.swing.JFrame {
         jLabel110.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         jLabel110.setText("Sistem akan mengirimkan peringatan ketika penggunaan mencapai % dari batas yang ditentukan.");
 
+        jButton26.setBackground(new java.awt.Color(0, 204, 255));
+        jButton26.setForeground(new java.awt.Color(255, 255, 255));
         jButton26.setText("Simpan Pengaturan");
         jButton26.addActionListener(this::jButton9ActionPerformed);
 
@@ -447,8 +449,10 @@ public class Pengaturan extends javax.swing.JFrame {
         jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel10.setText("Pengaturan Perangkat");
 
+        jLabel22.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel22.setText("Perangkat");
 
+        jLabel23.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel23.setText("Status");
 
         jLabel24.setText("Terakhir Update");
@@ -477,13 +481,12 @@ public class Pengaturan extends javax.swing.JFrame {
                         .addComponent(jLabel10)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
                         .addComponent(jLabel22)
-                        .addGap(63, 63, 63)
+                        .addGap(75, 75, 75)
                         .addComponent(jLabel23, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(69, 69, 69)
                         .addComponent(jLabel24)
-                        .addGap(78, 78, 78)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel26)
                         .addGap(31, 31, 31))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
