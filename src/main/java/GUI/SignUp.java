@@ -6,6 +6,7 @@ package GUI;
 
 import com.mycompany.monitoringenergirumah.Service.AuthService;
 import com.mycompany.monitoringenergirumah.Service.AuthService.RegisterResult;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -27,7 +28,7 @@ public class SignUp extends javax.swing.JFrame {
         this.authService = authService;
         initComponents();
         
-        btnSignUp.addActionListener(this::btnSignUpActionPerformed);
+        
     }
     
     
@@ -205,9 +206,52 @@ public class SignUp extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_chkShowPassActionPerformed
 
+    private void onSignUp() {
+
+    String nama = nameField.getText().trim();
+    String email = emailField.getText().trim();
+    String password = new String(passField.getPassword());
+    String konfirmasi = new String(passField2.getPassword());
+
+    RegisterResult hasil = authService.register(
+            nama,
+            email,
+            password,
+            konfirmasi
+    );
+
+    if (hasil == RegisterResult.SUKSES) {
+
+        JOptionPane.showMessageDialog(
+                this,
+                hasil.pesan(),
+                "Registrasi Berhasil",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+        SignIn signin = new SignIn(authService);
+
+        signin.setVisible(true);
+        this.dispose();
+
+    } else {
+
+        JOptionPane.showMessageDialog(
+                this,
+                hasil.pesan(),
+                "Registrasi Gagal",
+                JOptionPane.WARNING_MESSAGE
+        );
+    }
+    
+} // <-- KURUNG PENUTUP METHOD onSignUp()
+
+
+    
     private void btnSignUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignUpActionPerformed
-        // TODO add your handling code here:
+        onSignUp();
     }//GEN-LAST:event_btnSignUpActionPerformed
+
+    
 
     /**
      * @param args the command line arguments
