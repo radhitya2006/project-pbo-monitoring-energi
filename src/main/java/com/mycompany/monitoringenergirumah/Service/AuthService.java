@@ -26,8 +26,7 @@ public class AuthService {
         daftarUser.add(new User("Admin Demo", "admin@email.com", "admin123"));
     }
     
-    public RegisterResult register(String namaLengkap, String email,
-                                   String password, String konfirmasiPassword) {
+    public RegisterResult register(String namaLengkap, String email,String password, String konfirmasiPassword) {
         if (namaLengkap == null || namaLengkap.trim().isEmpty()) {
             return RegisterResult.NAMA_KOSONG;
         }
