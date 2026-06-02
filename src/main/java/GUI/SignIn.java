@@ -169,11 +169,18 @@ public class SignIn extends javax.swing.JFrame {
     }//GEN-LAST:event_emailFieldActionPerformed
 
     private void btnPassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPassActionPerformed
-        // TODO add your handling code here:
+        javax.swing.JOptionPane.showMessageDialog(
+                this,
+                "Silakan hubungi admin untuk melakukan reset password.",
+                "Lupa Password",
+                javax.swing.JOptionPane.INFORMATION_MESSAGE
+        );
     }//GEN-LAST:event_btnPassActionPerformed
 
     private void btnSignUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignUpActionPerformed
-        // TODO add your handling code here:
+        SignUp signup = new SignUp();
+        signup.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_btnSignUpActionPerformed
 
     /**
