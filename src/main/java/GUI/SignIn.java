@@ -26,7 +26,7 @@ public class SignIn extends javax.swing.JFrame {
     public SignIn(AuthService authService) {
         this.authService = authService;
         initComponents();
-        initLogic();
+        //initLogic();
     }
 
     /**
@@ -223,7 +223,5 @@ public class SignIn extends javax.swing.JFrame {
     private javax.swing.JCheckBox showPass;
     // End of variables declaration//GEN-END:variables
 
-    private void initLogic() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+    
 }
