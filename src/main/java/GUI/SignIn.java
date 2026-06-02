@@ -79,6 +79,7 @@ public class SignIn extends javax.swing.JFrame {
         btnSignIn.setText("Sign In");
         btnSignIn.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 204, 255)));
         btnSignIn.setBorderPainted(false);
+        btnSignIn.addActionListener(this::btnSignInActionPerformed);
 
         jLabel5.setText("Belum punya akun?");
 
@@ -194,6 +195,10 @@ public class SignIn extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_showPassActionPerformed
 
+    private void btnSignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignInActionPerformed
+        onSignIn();
+    }//GEN-LAST:event_btnSignInActionPerformed
+
     private void onSignIn() {
         String email    = emailField.getText().trim();
         String password = new String(passField.getPassword());
@@ -212,7 +217,21 @@ public class SignIn extends javax.swing.JFrame {
                     "Login Berhasil",
                     javax.swing.JOptionPane.INFORMATION_MESSAGE
             );
+            Dashboard dashboard = new Dashboard();
+            dashboard.setVisible(true);
             dispose();
+ 
+        } else {
+            // Login gagal → tampilkan pesan error dari AuthService
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,
+                    hasil.pesan(),
+                    "Login Gagal",
+                    javax.swing.JOptionPane.ERROR_MESSAGE
+            );
+            // Kosongkan password dan kembalikan fokus
+            passField.setText("");
+            passField.requestFocus();
         }
     }
     /**
