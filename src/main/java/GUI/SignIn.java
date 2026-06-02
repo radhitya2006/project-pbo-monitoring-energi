@@ -217,7 +217,7 @@ public class SignIn extends javax.swing.JFrame {
                     "Login Berhasil",
                     javax.swing.JOptionPane.INFORMATION_MESSAGE
             );
-            Dashboard dashboard = new Dashboard();
+            Dashboard dashboard = new Dashboard(authService);
             dashboard.setVisible(true);
             dispose();
  

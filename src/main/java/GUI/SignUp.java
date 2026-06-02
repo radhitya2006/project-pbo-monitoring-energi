@@ -200,9 +200,11 @@ public class SignUp extends javax.swing.JFrame {
         if (chkShowPass.isSelected()) {
             // Tampilkan password — echo char 0 = karakter asli
             passField.setEchoChar((char) 0);
+            passField2.setEchoChar((char) 0);
         } else {
             // Sembunyikan kembali dengan karakter bullet
             passField.setEchoChar('\u2022');
+            passField2.setEchoChar('\u2022');
         }
     }//GEN-LAST:event_chkShowPassActionPerformed
 
