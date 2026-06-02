@@ -90,6 +90,7 @@ public class SignIn extends javax.swing.JFrame {
 
         showPass.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         showPass.setText("Tampilkan Password");
+        showPass.addActionListener(this::showPassActionPerformed);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -183,6 +184,37 @@ public class SignIn extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_btnSignUpActionPerformed
 
+    private void showPassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showPassActionPerformed
+        if (showPass.isSelected()) {
+            // Tampilkan password — echo char 0 = karakter asli
+            passField.setEchoChar((char) 0);
+        } else {
+            // Sembunyikan kembali dengan karakter bullet
+            passField.setEchoChar('\u2022');
+        }
+    }//GEN-LAST:event_showPassActionPerformed
+
+    private void onSignIn() {
+        String email    = emailField.getText().trim();
+        String password = new String(passField.getPassword());
+ 
+        // Serahkan ke AuthService — form tidak tahu cara validasi
+        LoginResult hasil = authService.login(email, password);
+ 
+        if (hasil == LoginResult.SUKSES) {
+            // Login berhasil → buka Dashboard
+            // TODO: Ganti dengan nama class Dashboard Anda
+            // new Dashboard(authService).setVisible(true);
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,
+                    "Selamat datang, "
+                            + authService.getCurrentUser().getNamaLengkap() + "!",
+                    "Login Berhasil",
+                    javax.swing.JOptionPane.INFORMATION_MESSAGE
+            );
+            dispose();
+        }
+    }
     /**
      * @param args the command line arguments
      */
