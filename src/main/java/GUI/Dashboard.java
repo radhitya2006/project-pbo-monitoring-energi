@@ -25,7 +25,7 @@ public Dashboard(AuthService authService) {
             authService.getCurrentUser().getNamaLengkap()
         );
 
-        jLabel3.setText(
+        lblUser2.setText(
             authService.getCurrentUser().getNamaLengkap()
         );
     }
@@ -77,7 +77,7 @@ public Dashboard(AuthService authService) {
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
         btnLogOut = new javax.swing.JButton();
-        jLabel3 = new javax.swing.JLabel();
+        lblUser2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -424,9 +424,9 @@ public Dashboard(AuthService authService) {
         btnLogOut.setText("Logout");
         btnLogOut.addActionListener(this::btnLogOutActionPerformed);
 
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel3.setText("Nama User");
+        lblUser2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        lblUser2.setForeground(new java.awt.Color(255, 255, 255));
+        lblUser2.setText("Nama User");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -449,7 +449,7 @@ public Dashboard(AuthService authService) {
                 .addContainerGap())
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(32, 32, 32)
-                .addComponent(jLabel3)
+                .addComponent(lblUser2)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -472,7 +472,7 @@ public Dashboard(AuthService authService) {
                 .addGap(18, 18, 18)
                 .addComponent(btnLogOut)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 369, Short.MAX_VALUE)
-                .addComponent(jLabel3)
+                .addComponent(lblUser2)
                 .addGap(33, 33, 33))
         );
 
@@ -558,7 +558,6 @@ public Dashboard(AuthService authService) {
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -576,5 +575,6 @@ public Dashboard(AuthService authService) {
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JLabel lblUser;
+    private javax.swing.JLabel lblUser2;
     // End of variables declaration//GEN-END:variables
 }
