@@ -16,19 +16,42 @@ public class Perangkat extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Perangkat.class.getName());
 
-    private SistemMonitoring sistem = new SistemMonitoring();
+    private SistemMonitoring sistem;
+    private com.mycompany.monitoringenergirumah.Service.AuthService authService; 
+
+    
+    public Perangkat(SistemMonitoring sistem, com.mycompany.monitoringenergirumah.Service.AuthService authService) {
+        initComponents();
+        
+        // 2. Simpan ransel data ke halaman ini
+        this.sistem = sistem;
+        this.authService = authService;
+        
+        // 3. Set nama user di lblUser (header) dan jLabel3 (sidebar)
+        if (authService != null && authService.getCurrentUser() != null) {
+            String namaLengkap = authService.getCurrentUser().getNamaLengkap();
+            lblUser.setText(namaLengkap);
+        }
+        
+        // Atur layout grid agar rapi (2 kolom)
+        panelContainer.setLayout(new java.awt.GridLayout(0, 2, 15, 15));
+        
+        // Panggil method untuk me-refresh data card dari sistem
+        tampilkanData();
+    }
+
     /**
-     * Creates new form Perangkat
+     * Constructor default bawaan NetBeans (Bisa dibiarkan untuk fallback)
      */
     public Perangkat() {
         initComponents();
-        // 1. Atur layout grid agar rapi (2 kolom)
+        sistem = new SistemMonitoring(); // Fallback jika dijalankan langsung (Shift+F6)
         panelContainer.setLayout(new java.awt.GridLayout(0, 2, 15, 15));
-        
-        // 2. Panggil method untuk me-refresh data card dari sistem
         tampilkanData();
- 
-    
+    }
+
+    Perangkat(SistemMonitoring sistem) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     
     
@@ -116,10 +139,11 @@ public class Perangkat extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jPanel4 = new javax.swing.JPanel();
         panelContainer = new javax.swing.JPanel();
+        lblUser = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        btnBeranda = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
@@ -134,7 +158,7 @@ public class Perangkat extends javax.swing.JFrame {
 
         jLabel4.setText("Perangkat");
 
-        jLabel5.setText("Selamat datang, nama user");
+        jLabel5.setText("Selamat datang, ");
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel6.setText("Daftar Perangkat");
@@ -199,6 +223,8 @@ public class Perangkat extends javax.swing.JFrame {
 
         jScrollPane1.setViewportView(jPanel4);
 
+        lblUser.setText("nama user");
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -208,7 +234,10 @@ public class Perangkat extends javax.swing.JFrame {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel5)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(jLabel5)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(lblUser))
                             .addComponent(jLabel4))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
@@ -227,8 +256,10 @@ public class Perangkat extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel5)
-                .addGap(21, 21, 21)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(lblUser))
+                .addGap(29, 29, 29)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnTambahPerangkat))
@@ -249,11 +280,11 @@ public class Perangkat extends javax.swing.JFrame {
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Energi");
 
-        jButton1.setBackground(new java.awt.Color(0, 204, 255));
-        jButton1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jButton1.setForeground(new java.awt.Color(255, 255, 255));
-        jButton1.setText("Beranda");
-        jButton1.addActionListener(this::jButton1ActionPerformed);
+        btnBeranda.setBackground(new java.awt.Color(0, 204, 255));
+        btnBeranda.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnBeranda.setForeground(new java.awt.Color(255, 255, 255));
+        btnBeranda.setText("Beranda");
+        btnBeranda.addActionListener(this::btnBerandaActionPerformed);
 
         jButton2.setBackground(new java.awt.Color(0, 204, 255));
         jButton2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -291,7 +322,7 @@ public class Perangkat extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnBeranda, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -316,7 +347,7 @@ public class Perangkat extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2)
                 .addGap(18, 18, 18)
-                .addComponent(jButton1)
+                .addComponent(btnBeranda)
                 .addGap(18, 18, 18)
                 .addComponent(jButton2)
                 .addGap(18, 18, 18)
@@ -329,7 +360,7 @@ public class Perangkat extends javax.swing.JFrame {
                 .addComponent(jButton6)
                 .addGap(276, 276, 276)
                 .addComponent(jLabel3)
-                .addContainerGap(83, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -351,9 +382,13 @@ public class Perangkat extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void btnBerandaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBerandaActionPerformed
+        Dashboard formDashboard = new Dashboard(this.authService, this.sistem);
+        
+        formDashboard.setLocationRelativeTo(null); // Posisi tengah layar
+        formDashboard.setVisible(true);            // Tampilkan dashboard
+        this.dispose();
+    }//GEN-LAST:event_btnBerandaActionPerformed
 
     private void btnTambahPerangkatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahPerangkatActionPerformed
         TambahPerangkat form =
@@ -389,9 +424,9 @@ public class Perangkat extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnBeranda;
     private javax.swing.JButton btnTambahPerangkat;
     private javax.swing.JComboBox<String> comboJenis;
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
@@ -408,6 +443,7 @@ public class Perangkat extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblUser;
     private javax.swing.JPanel panelContainer;
     private javax.swing.JTextField txtSearch;
     // End of variables declaration//GEN-END:variables
