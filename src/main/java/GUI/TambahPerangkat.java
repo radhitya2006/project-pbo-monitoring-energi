@@ -27,6 +27,58 @@ public class TambahPerangkat extends javax.swing.JFrame {
         this.parent = parent;
         this.sistem = sistem;
     }
+    
+    private void hitungEstimasi() {
+        try {
+            // 1. Mengambil teks dari inputan dengan variabel baru
+            String jenis = pilihJenis.getSelectedItem().toString(); 
+            String teksDaya = txtDaya.getText();                
+            String teksWaktu = txtLamaPemakaian.getText();               
+
+            // 2. Kembalikan ke 0 jika input kosong atau jenis belum dipilih
+            if (jenis.equals("Pilih Jenis Perangkat") || teksDaya.trim().isEmpty() || teksWaktu.trim().isEmpty()) {
+                lblEnergi.setText("0.00 kWh"); 
+                lblHarga.setText("Rp 0");     
+                return;
+            }
+
+            double daya = Double.parseDouble(teksDaya);
+            double waktu = Double.parseDouble(teksWaktu);
+
+            com.mycompany.monitoringenergirumah.Model.PerangkatListrik perangkatSementara = null;
+
+            // 3. Kalkulasi menggunakan objek dummy sesuai jenisnya
+            if (jenis.equals("AC")) {
+                double cop = 1.0; 
+                if (!txtCop.getText().isEmpty()) { 
+                    cop = Double.parseDouble(txtCop.getText()); 
+                }
+                perangkatSementara = new com.mycompany.monitoringenergirumah.Model.AC("Estimasi", (int) daya, waktu, cop);
+                
+            } else if (jenis.equals("Lampu")) {
+                perangkatSementara = new com.mycompany.monitoringenergirumah.Model.Lampu("Estimasi", (int) daya, waktu);
+                
+            } else if (jenis.equals("Televisi")) {
+                perangkatSementara = new com.mycompany.monitoringenergirumah.Model.Televisi("Estimasi", (int) daya, waktu);
+            }
+
+            // 4. Output ke Label Energi dan Harga
+            if (perangkatSementara != null) {
+                double energi = perangkatSementara.hitungEnergi();
+                double biaya = sistem.getKalkulator().hitungBiayaDenganPajak(energi);
+
+                lblEnergi.setText(String.format("%.2f kWh", energi)); 
+                lblHarga.setText(String.format("Rp %,.0f", biaya));  
+            }
+
+        } catch (NumberFormatException e) {
+            lblEnergi.setText("0.00 kWh"); 
+            lblHarga.setText("Rp 0");     
+        } catch (Exception e) {
+            lblEnergi.setText("Error");    
+            lblHarga.setText("Error");    
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -39,24 +91,24 @@ public class TambahPerangkat extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        pilihJenis = new javax.swing.JComboBox<>();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        txtNamaPerangkat = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
+        txtDaya = new javax.swing.JTextField();
+        txtLamaPemakaian = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
+        lblEnergi = new javax.swing.JLabel();
+        lblHarga = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
-        jTextField4 = new javax.swing.JTextField();
+        txtCop = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
@@ -66,14 +118,14 @@ public class TambahPerangkat extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel1.setText("Tambah Perangkat Baru");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pilih Jenis Perangkat", "Lampu", "AC", "Televisi" }));
-        jComboBox1.setToolTipText("");
+        pilihJenis.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pilih Jenis Perangkat", "Lampu", "AC", "Televisi" }));
+        pilihJenis.setToolTipText("");
 
         jLabel2.setText("Jenis Perangkat");
 
         jLabel3.setText("Nama Perangkat");
 
-        jTextField1.addActionListener(this::jTextField1ActionPerformed);
+        txtNamaPerangkat.addActionListener(this::txtNamaPerangkatActionPerformed);
 
         jLabel4.setText("Daya (W)");
 
@@ -84,9 +136,9 @@ public class TambahPerangkat extends javax.swing.JFrame {
 
         jLabel6.setText("Estimasi Energi & Biaya");
 
-        jLabel8.setText("0.00 kWh");
+        lblEnergi.setText("0.00 kWh");
 
-        jLabel9.setText(" Rp 0");
+        lblHarga.setText(" Rp 0");
 
         jLabel10.setText("per hari");
 
@@ -97,17 +149,14 @@ public class TambahPerangkat extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel6)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel8)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                    .addComponent(jLabel6)
+                    .addComponent(lblEnergi))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel10)
-                    .addComponent(jLabel9))
+                    .addComponent(lblHarga))
                 .addGap(26, 26, 26))
         );
         jPanel2Layout.setVerticalGroup(
@@ -116,10 +165,10 @@ public class TambahPerangkat extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
-                .addComponent(jLabel9)
+                .addComponent(lblHarga)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel8)
+                    .addComponent(lblEnergi)
                     .addComponent(jLabel10))
                 .addContainerGap())
         );
@@ -147,7 +196,7 @@ public class TambahPerangkat extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel7)
-                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtCop, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(46, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
@@ -156,7 +205,7 @@ public class TambahPerangkat extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel7)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtCop, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(35, Short.MAX_VALUE))
         );
 
@@ -169,18 +218,18 @@ public class TambahPerangkat extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jTextField1)
+                            .addComponent(pilihJenis, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(txtNamaPerangkat)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel4)
                                     .addComponent(jLabel2)
                                     .addComponent(jLabel3)
-                                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(txtDaya, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jTextField3)))
+                                    .addComponent(txtLamaPemakaian)))
                             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -206,19 +255,19 @@ public class TambahPerangkat extends javax.swing.JFrame {
                 .addGap(38, 38, 38)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(pilihJenis, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtNamaPerangkat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(jLabel5))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtDaya, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtLamaPemakaian, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
@@ -244,23 +293,23 @@ public class TambahPerangkat extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+    private void txtNamaPerangkatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNamaPerangkatActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
+    }//GEN-LAST:event_txtNamaPerangkatActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
             // 1. Validasi ComboBox Jenis Perangkat
-            String jenis = jComboBox1.getSelectedItem().toString();
+            String jenis = pilihJenis.getSelectedItem().toString();
             if (jenis.equals("Pilih Jenis Perangkat")) {
                 JOptionPane.showMessageDialog(this, "Silakan pilih jenis perangkat terlebih dahulu!", "Peringatan", JOptionPane.WARNING_MESSAGE);
                 return; // Hentikan proses jika jenis belum dipilih
             }
 
             // 2. Ambil data teks dan konversi ke angka
-            String nama = jTextField1.getText();
-            double daya = Double.parseDouble(jTextField2.getText());
-            double waktu = Double.parseDouble(jTextField3.getText()); // Lama pemakaian
+            String nama = txtNamaPerangkat.getText();
+            double daya = Double.parseDouble(txtDaya.getText());
+            double waktu = Double.parseDouble(txtLamaPemakaian.getText()); // Lama pemakaian
 
             // 3. Deklarasi objek superclass
             PerangkatListrik perangkatBaru = null;
@@ -268,8 +317,8 @@ public class TambahPerangkat extends javax.swing.JFrame {
             // 4. Instansiasi objek berdasarkan subclass
             if (jenis.equals("AC")) {
                 double cop = 1.0; 
-                if (!jTextField4.getText().isEmpty()) {
-                    cop = Double.parseDouble(jTextField4.getText());
+                if (!txtCop.getText().isEmpty()) {
+                    cop = Double.parseDouble(txtCop.getText());
                 }
                 // Tambahkan (int) sebelum variabel daya
                 perangkatBaru = new AC(nama, (int) daya, waktu, cop); 
@@ -312,7 +361,6 @@ public class TambahPerangkat extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
@@ -321,14 +369,15 @@ public class TambahPerangkat extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
+    private javax.swing.JLabel lblEnergi;
+    private javax.swing.JLabel lblHarga;
+    private javax.swing.JComboBox<String> pilihJenis;
+    private javax.swing.JTextField txtCop;
+    private javax.swing.JTextField txtDaya;
+    private javax.swing.JTextField txtLamaPemakaian;
+    private javax.swing.JTextField txtNamaPerangkat;
     // End of variables declaration//GEN-END:variables
 }

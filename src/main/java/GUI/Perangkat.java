@@ -31,6 +31,7 @@ public class Perangkat extends javax.swing.JFrame {
     
     }
     
+    
     public void tampilkanData() {
         // Bersihkan area panel dari card lama
         panelContainer.removeAll(); 
