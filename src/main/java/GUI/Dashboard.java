@@ -21,7 +21,7 @@ public Dashboard(AuthService authService) {
     initComponents();
 
     if (authService.getCurrentUser() != null) {
-        lblUser.setText(
+        lblUser2.setText(
             authService.getCurrentUser().getNamaLengkap()
         );
 
