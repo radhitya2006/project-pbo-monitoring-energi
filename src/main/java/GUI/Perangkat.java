@@ -4,6 +4,10 @@
  */
 package GUI;
 
+import com.mycompany.monitoringenergirumah.Service.SistemMonitoring;
+import java.awt.Dimension;
+import javax.swing.JButton;
+
 /**
  *
  * @author USER
@@ -12,11 +16,84 @@ public class Perangkat extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Perangkat.class.getName());
 
+    private SistemMonitoring sistem = new SistemMonitoring();
     /**
      * Creates new form Perangkat
      */
     public Perangkat() {
         initComponents();
+        // 1. Atur layout grid agar rapi (2 kolom)
+        panelContainer.setLayout(new java.awt.GridLayout(0, 2, 15, 15));
+        
+        // 2. Panggil method untuk me-refresh data card dari sistem
+        tampilkanData();
+ 
+    
+    }
+    
+    
+    public void tampilkanData() {
+        // Bersihkan area panel dari card lama
+        panelContainer.removeAll(); 
+
+        // Looping data perangkat
+        for (com.mycompany.monitoringenergirumah.Model.PerangkatListrik p : sistem.getPerangkatList()) {
+            
+            String jenis = p.getClass().getSimpleName();
+            double energi = p.hitungEnergi();
+            double biaya = sistem.getKalkulator().hitungBiayaDenganPajak(energi);
+            
+            // 1. Buat object card-nya
+            CardPerangkat card = new CardPerangkat(
+                    p.getNama(), 
+                    jenis, 
+                    (int) p.getDaya(), 
+                    energi, 
+                    biaya, 
+                    "Aktif" 
+            );
+
+            // ==========================================
+            // 2. FUNGSI TOMBOL HAPUS
+            // ==========================================
+            card.getBtnHapus().addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    // Munculkan konfirmasi Yes/No
+                    int konfirmasi = javax.swing.JOptionPane.showConfirmDialog(
+                            Perangkat.this, 
+                            "Apakah Anda yakin ingin menghapus " + p.getNama() + "?", 
+                            "Konfirmasi Hapus", 
+                            javax.swing.JOptionPane.YES_NO_OPTION,
+                            javax.swing.JOptionPane.WARNING_MESSAGE
+                    );
+                    
+                    // Jika diklik Yes (Iya)
+                    if (konfirmasi == javax.swing.JOptionPane.YES_OPTION) {
+                        sistem.hapusPerangkat(p.getNama()); // Hapus dari sistem
+                        tampilkanData(); // Refresh UI langsung
+                    }
+                }
+            });
+
+            // ==========================================
+            // 3. FUNGSI TOMBOL EDIT
+            // ==========================================
+            card.getBtnEdit().addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    // Panggil form TambahPerangkat menggunakan mode Edit (melempar objek 'p')
+                    TambahPerangkat formEdit = new TambahPerangkat(Perangkat.this, sistem, p);
+                    formEdit.setLocationRelativeTo(Perangkat.this);
+                    formEdit.setVisible(true);
+                }
+            });
+
+            // 4. Masukkan card yang sudah ada fungsinya ke layar
+            panelContainer.add(card); 
+        }
+
+        // Segarkan tampilan layar
+        panelContainer.revalidate();
+        panelContainer.repaint();
     }
 
     /**
@@ -32,11 +109,13 @@ public class Perangkat extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        jButton7 = new javax.swing.JButton();
+        btnTambahPerangkat = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
-        jComboBox1 = new javax.swing.JComboBox<>();
-        jComboBox2 = new javax.swing.JComboBox<>();
-        jTextField1 = new javax.swing.JTextField();
+        comboJenis = new javax.swing.JComboBox<>();
+        txtSearch = new javax.swing.JTextField();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jPanel4 = new javax.swing.JPanel();
+        panelContainer = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -51,6 +130,7 @@ public class Perangkat extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel2.setForeground(new java.awt.Color(255, 255, 255));
 
         jLabel4.setText("Perangkat");
 
@@ -59,18 +139,16 @@ public class Perangkat extends javax.swing.JFrame {
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel6.setText("Daftar Perangkat");
 
-        jButton7.setText("+ Tambah Perangkat");
-        jButton7.addActionListener(this::jButton7ActionPerformed);
+        btnTambahPerangkat.setText("+ Tambah Perangkat");
+        btnTambahPerangkat.addActionListener(this::btnTambahPerangkatActionPerformed);
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        comboJenis.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Semua Jenis", "AC", "Lampu", "Televisi\t" }));
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        jTextField1.setForeground(new java.awt.Color(204, 204, 204));
-        jTextField1.setText("Cari Perangkat....");
+        txtSearch.setForeground(new java.awt.Color(204, 204, 204));
+        txtSearch.setText("Cari Perangkat....");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -78,11 +156,9 @@ public class Perangkat extends javax.swing.JFrame {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(19, 19, 19)
-                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(45, 45, 45)
-                .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 358, Short.MAX_VALUE)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(comboJenis, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(15, 15, 15))
         );
         jPanel3Layout.setVerticalGroup(
@@ -90,11 +166,38 @@ public class Perangkat extends javax.swing.JFrame {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(14, 14, 14)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(comboJenis, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(19, Short.MAX_VALUE))
         );
+
+        jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
+        jScrollPane1.setForeground(new java.awt.Color(255, 255, 255));
+
+        jPanel4.setBackground(new java.awt.Color(255, 255, 255));
+
+        panelContainer.setBackground(new java.awt.Color(255, 255, 255));
+        panelContainer.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        panelContainer.setLayout(new java.awt.GridLayout(0, 2));
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(panelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(611, Short.MAX_VALUE))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(panelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(478, Short.MAX_VALUE))
+        );
+
+        jScrollPane1.setViewportView(jPanel4);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -108,13 +211,14 @@ public class Perangkat extends javax.swing.JFrame {
                             .addComponent(jLabel5)
                             .addComponent(jLabel4))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jButton7)))
+                                .addComponent(btnTambahPerangkat)))
                         .addGap(14, 14, 14))))
         );
         jPanel2Layout.setVerticalGroup(
@@ -124,13 +228,15 @@ public class Perangkat extends javax.swing.JFrame {
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel5)
-                .addGap(18, 18, 18)
+                .addGap(21, 21, 21)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton7))
+                    .addComponent(btnTambahPerangkat))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(512, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 490, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel1.setBackground(new java.awt.Color(0, 51, 51));
@@ -223,7 +329,7 @@ public class Perangkat extends javax.swing.JFrame {
                 .addComponent(jButton6)
                 .addGap(276, 276, 276)
                 .addComponent(jLabel3)
-                .addContainerGap(68, Short.MAX_VALUE))
+                .addContainerGap(83, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -233,7 +339,8 @@ public class Perangkat extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -248,9 +355,13 @@ public class Perangkat extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton7ActionPerformed
+    private void btnTambahPerangkatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahPerangkatActionPerformed
+        TambahPerangkat form =
+            new TambahPerangkat(this, sistem);
+
+        form.setLocationRelativeTo(this);
+        form.setVisible(true);
+    }//GEN-LAST:event_btnTambahPerangkatActionPerformed
 
     /**
      * @param args the command line arguments
@@ -278,15 +389,14 @@ public class Perangkat extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnTambahPerangkat;
+    private javax.swing.JComboBox<String> comboJenis;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
-    private javax.swing.JButton jButton7;
-    private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JComboBox<String> jComboBox2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -296,6 +406,9 @@ public class Perangkat extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JPanel panelContainer;
+    private javax.swing.JTextField txtSearch;
     // End of variables declaration//GEN-END:variables
 }
