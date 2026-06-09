@@ -209,19 +209,23 @@ public class SignIn extends javax.swing.JFrame {
         LoginResult hasil = authService.login(email, password);
  
         if (hasil == LoginResult.SUKSES) {
-            // Login berhasil → buka Dashboard
-            // TODO: Ganti dengan nama class Dashboard Anda
-            // new Dashboard(authService).setVisible(true);
+            // Login berhasil → Munculkan pesan sukses
             javax.swing.JOptionPane.showMessageDialog(
                     this,
-                    "Selamat datang, "
-                            + authService.getCurrentUser().getNamaLengkap() + "!",
+                    "Selamat datang, " + authService.getCurrentUser().getNamaLengkap() + "!",
                     "Login Berhasil",
                     javax.swing.JOptionPane.INFORMATION_MESSAGE
             );
-            Dashboard dashboard = new Dashboard(authService);
+            
+            // 1. Buat ransel/sistem baru untuk user yang baru masuk ini
+            com.mycompany.monitoringenergirumah.Service.SistemMonitoring sistemBaru = new com.mycompany.monitoringenergirumah.Service.SistemMonitoring();
+            
+            // 2. Buka Dashboard dengan membawa authService dan ransel barunya
+            Dashboard dashboard = new Dashboard(authService, sistemBaru);
+            dashboard.setLocationRelativeTo(null); // Posisikan di tengah layar
             dashboard.setVisible(true);
-            dispose();
+            
+            dispose(); // Tutup form login
  
         } else {
             // Login gagal → tampilkan pesan error dari AuthService

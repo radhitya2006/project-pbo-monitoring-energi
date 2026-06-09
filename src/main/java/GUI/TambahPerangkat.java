@@ -80,7 +80,7 @@ public class TambahPerangkat extends javax.swing.JFrame {
 
             // 3. Kalkulasi menggunakan objek dummy sesuai jenisnya
             if (jenis.equals("AC")) {
-                double cop = 1.0; 
+                double cop = 3.0; 
                 if (!txtCop.getText().isEmpty()) { 
                     cop = Double.parseDouble(txtCop.getText()); 
                 }
@@ -365,7 +365,7 @@ public class TambahPerangkat extends javax.swing.JFrame {
 
             // 4. Instansiasi objek berdasarkan subclass
             if (jenis.equals("AC")) {
-                double cop = 1.0; 
+                double cop = 3.0; 
                 if (!txtCop.getText().isEmpty()) {
                     cop = Double.parseDouble(txtCop.getText());
                 }

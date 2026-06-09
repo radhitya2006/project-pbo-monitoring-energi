@@ -5,6 +5,7 @@
 package GUI;
 
 import com.mycompany.monitoringenergirumah.Service.AuthService;
+import com.mycompany.monitoringenergirumah.Service.SistemMonitoring;
 
 /**
  *
@@ -15,9 +16,11 @@ public class Dashboard extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Dashboard.class.getName());
 
     private AuthService authService;
+    private SistemMonitoring sistem;
 
-public Dashboard(AuthService authService) {
+public Dashboard(AuthService authService, com.mycompany.monitoringenergirumah.Service.SistemMonitoring sistem) {
     this.authService = authService;
+    this.sistem = sistem;
     initComponents();
 
     if (authService.getCurrentUser() != null) {
@@ -74,7 +77,7 @@ public Dashboard(AuthService authService) {
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        btnPerangkat = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
         btnLogOut = new javax.swing.JButton();
         lblUser2 = new javax.swing.JLabel();
@@ -408,10 +411,11 @@ public Dashboard(AuthService authService) {
         jButton3.setForeground(new java.awt.Color(255, 255, 255));
         jButton3.setText("Laporan");
 
-        jButton4.setBackground(new java.awt.Color(0, 204, 255));
-        jButton4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jButton4.setForeground(new java.awt.Color(255, 255, 255));
-        jButton4.setText("Perangkat");
+        btnPerangkat.setBackground(new java.awt.Color(0, 204, 255));
+        btnPerangkat.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnPerangkat.setForeground(new java.awt.Color(255, 255, 255));
+        btnPerangkat.setText("Perangkat");
+        btnPerangkat.addActionListener(this::btnPerangkatActionPerformed);
 
         jButton5.setBackground(new java.awt.Color(0, 204, 255));
         jButton5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -438,7 +442,7 @@ public Dashboard(AuthService authService) {
                     .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnPerangkat, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
@@ -466,7 +470,7 @@ public Dashboard(AuthService authService) {
                 .addGap(18, 18, 18)
                 .addComponent(jButton3)
                 .addGap(18, 18, 18)
-                .addComponent(jButton4)
+                .addComponent(btnPerangkat)
                 .addGap(18, 18, 18)
                 .addComponent(jButton5)
                 .addGap(18, 18, 18)
@@ -515,6 +519,14 @@ public Dashboard(AuthService authService) {
         dispose();
     }//GEN-LAST:event_btnLogOutActionPerformed
 
+    private void btnPerangkatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPerangkatActionPerformed
+
+        Perangkat formPerangkat = new Perangkat(this.sistem, this.authService); 
+        formPerangkat.setLocationRelativeTo(null); 
+        formPerangkat.setVisible(true);            
+        this.dispose();
+    }//GEN-LAST:event_btnPerangkatActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -542,10 +554,10 @@ public Dashboard(AuthService authService) {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnLogOut;
+    private javax.swing.JButton btnPerangkat;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
