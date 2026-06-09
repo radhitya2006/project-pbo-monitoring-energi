@@ -251,6 +251,7 @@ public Dashboard(AuthService authService) {
         jPanel9.setBackground(new java.awt.Color(255, 255, 255));
         jPanel9.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
+        jLabel14.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel14.setText("Data Penggunaan Terakhir");
 
         jButton7.setBackground(new java.awt.Color(0, 204, 255));
