@@ -11,7 +11,7 @@ public class CardPerangkat extends JPanel {
     private JLabel lblDaya;
     private JLabel lblEnergi;
     private JLabel lblBiaya; // <-- 1. Tambahkan variabel baru untuk Biaya
-    private JLabel lblStatus;
+  
 
     private JButton btnEdit;
     private JButton btnHapus;
@@ -41,15 +41,7 @@ public class CardPerangkat extends JPanel {
         lblNama = new JLabel(nama);
         lblNama.setFont(new Font("Segoe UI", Font.BOLD, 16));
 
-        lblStatus = new JLabel(status);
-        if(status.equalsIgnoreCase("Aktif")){
-            lblStatus.setForeground(new Color(0,153,51));
-        }else{
-            lblStatus.setForeground(Color.RED);
-        }
-
-        panelHeader.add(lblNama, BorderLayout.WEST);
-        panelHeader.add(lblStatus, BorderLayout.EAST);
+        
 
         // =========================
         // Body

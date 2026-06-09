@@ -18,14 +18,45 @@ public class TambahPerangkat extends javax.swing.JFrame {
 
     private Perangkat parent;
     private SistemMonitoring sistem;
-    /**
-     * Creates new form TambahPerangkat
-     */
+    private PerangkatListrik perangkatEdit = null; 
+
+    // ========================================================
+    // CONSTRUCTOR 1: KHUSUS UNTUK MENAMBAH PERANGKAT BARU
+    // (Pasti errornya karena bagian ini hilang/tertimpa)
+    // ========================================================
     public TambahPerangkat(Perangkat parent, SistemMonitoring sistem) {
         initComponents();
-
         this.parent = parent;
         this.sistem = sistem;
+    }
+
+    // ========================================================
+    // CONSTRUCTOR 2: KHUSUS UNTUK MENGEDIT PERANGKAT
+    // ========================================================
+    public TambahPerangkat(Perangkat parent, SistemMonitoring sistem, PerangkatListrik p) {
+        initComponents();
+        this.parent = parent;
+        this.sistem = sistem;
+        this.perangkatEdit = p;
+
+        // Ubah judul form
+        jLabel1.setText("Edit Perangkat");
+        
+        // Kunci jenis perangkat
+        pilihJenis.setSelectedItem(p.getClass().getSimpleName());
+        pilihJenis.setEnabled(false);
+
+        // Isi form dengan data lama
+        txtNamaPerangkat.setText(p.getNama());
+        txtDaya.setText(String.valueOf((int) p.getDaya()));
+        txtLamaPemakaian.setText(String.valueOf(p.getLamaPemakaian()));
+        
+        // Khusus untuk AC
+        if (p instanceof AC) {
+            txtCop.setText(String.valueOf(((AC) p).getCop()));
+        } else {
+            txtCop.setEnabled(false);
+        }
     }
     
     private void hitungEstimasi() {

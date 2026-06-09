@@ -36,25 +36,59 @@ public class Perangkat extends javax.swing.JFrame {
         // Bersihkan area panel dari card lama
         panelContainer.removeAll(); 
 
-        // Ambil data perangkat dari SistemMonitoring, lalu looping
+        // Looping data perangkat
         for (com.mycompany.monitoringenergirumah.Model.PerangkatListrik p : sistem.getPerangkatList()) {
             
-            // Ambil jenis class otomatis (akan menghasilkan String "AC", "Lampu", atau "Televisi")
             String jenis = p.getClass().getSimpleName();
             double energi = p.hitungEnergi();
             double biaya = sistem.getKalkulator().hitungBiayaDenganPajak(energi);
             
-            // 1. Buat object card-nya dengan parameter baru
+            // 1. Buat object card-nya
             CardPerangkat card = new CardPerangkat(
                     p.getNama(), 
                     jenis, 
                     (int) p.getDaya(), 
                     energi, 
-                    biaya, // <-- Masukkan variabel biaya ke sini
+                    biaya, 
                     "Aktif" 
             );
-            
-            panelContainer.add(card);
+
+            // ==========================================
+            // 2. FUNGSI TOMBOL HAPUS
+            // ==========================================
+            card.getBtnHapus().addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    // Munculkan konfirmasi Yes/No
+                    int konfirmasi = javax.swing.JOptionPane.showConfirmDialog(
+                            Perangkat.this, 
+                            "Apakah Anda yakin ingin menghapus " + p.getNama() + "?", 
+                            "Konfirmasi Hapus", 
+                            javax.swing.JOptionPane.YES_NO_OPTION,
+                            javax.swing.JOptionPane.WARNING_MESSAGE
+                    );
+                    
+                    // Jika diklik Yes (Iya)
+                    if (konfirmasi == javax.swing.JOptionPane.YES_OPTION) {
+                        sistem.hapusPerangkat(p.getNama()); // Hapus dari sistem
+                        tampilkanData(); // Refresh UI langsung
+                    }
+                }
+            });
+
+            // ==========================================
+            // 3. FUNGSI TOMBOL EDIT
+            // ==========================================
+            card.getBtnEdit().addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    // Panggil form TambahPerangkat menggunakan mode Edit (melempar objek 'p')
+                    TambahPerangkat formEdit = new TambahPerangkat(Perangkat.this, sistem, p);
+                    formEdit.setLocationRelativeTo(Perangkat.this);
+                    formEdit.setVisible(true);
+                }
+            });
+
+            // 4. Masukkan card yang sudah ada fungsinya ke layar
+            panelContainer.add(card); 
         }
 
         // Segarkan tampilan layar
@@ -78,7 +112,6 @@ public class Perangkat extends javax.swing.JFrame {
         btnTambahPerangkat = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         comboJenis = new javax.swing.JComboBox<>();
-        comboStatus = new javax.swing.JComboBox<>();
         txtSearch = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         jPanel4 = new javax.swing.JPanel();
@@ -114,8 +147,6 @@ public class Perangkat extends javax.swing.JFrame {
 
         comboJenis.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Semua Jenis", "AC", "Lampu", "Televisi\t" }));
 
-        comboStatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Semua Status", "Aktif", "Mati" }));
-
         txtSearch.setForeground(new java.awt.Color(204, 204, 204));
         txtSearch.setText("Cari Perangkat....");
 
@@ -126,8 +157,6 @@ public class Perangkat extends javax.swing.JFrame {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(19, 19, 19)
                 .addComponent(comboJenis, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(45, 45, 45)
-                .addComponent(comboStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(15, 15, 15))
@@ -138,7 +167,6 @@ public class Perangkat extends javax.swing.JFrame {
                 .addGap(14, 14, 14)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(comboJenis, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(comboStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(19, Short.MAX_VALUE))
         );
@@ -363,7 +391,6 @@ public class Perangkat extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnTambahPerangkat;
     private javax.swing.JComboBox<String> comboJenis;
-    private javax.swing.JComboBox<String> comboStatus;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
