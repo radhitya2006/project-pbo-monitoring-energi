@@ -5,6 +5,7 @@
 package GUI;
 
 import java.awt.Dimension;
+import javax.swing.JButton;
 
 /**
  *
@@ -19,20 +20,50 @@ public class Perangkat extends javax.swing.JFrame {
      */
     public Perangkat() {
         initComponents();
-        panelContainer.add(
-        new CardPerangkat()
-        );
+ 
+    panelContainer.add(
+            new CardPerangkat(
+                    "AC Kamar",
+                    "AC",
+                    900,
+                    7.2,
+                    "Aktif"
+            )
+    );
 
-        panelContainer.add(
-        new CardPerangkat()
-        );
+    panelContainer.add(
+            new CardPerangkat(
+                    "Lampu Teras",
+                    "Lampu",
+                    20,
+                    0.8,
+                    "Aktif"
+            )
+    );
 
-        panelContainer.add(
-        new CardPerangkat()
-        );
+    panelContainer.add(
+            new CardPerangkat(
+                    "TV Ruang Tamu",
+                    "Televisi",
+                    120,
+                    1.5,
+                    "Mati"
+            )
+    );
 
-        panelContainer.revalidate();
-        panelContainer.repaint();
+    panelContainer.add(
+            new CardPerangkat(
+                    "AC Ruang Tamu",
+                    "AC",
+                    750,
+                    5.8,
+                    "Aktif"
+            )
+    );
+
+    panelContainer.revalidate();
+    panelContainer.repaint();
+        
         
 
     }
@@ -56,7 +87,6 @@ public class Perangkat extends javax.swing.JFrame {
         comboStatus = new javax.swing.JComboBox<>();
         txtSearch = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jPanel4 = new javax.swing.JPanel();
         panelContainer = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -123,36 +153,7 @@ public class Perangkat extends javax.swing.JFrame {
 
         panelContainer.setBackground(new java.awt.Color(255, 255, 255));
         panelContainer.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-
-        javax.swing.GroupLayout panelContainerLayout = new javax.swing.GroupLayout(panelContainer);
-        panelContainer.setLayout(panelContainerLayout);
-        panelContainerLayout.setHorizontalGroup(
-            panelContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 819, Short.MAX_VALUE)
-        );
-        panelContainerLayout.setVerticalGroup(
-            panelContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 461, Short.MAX_VALUE)
-        );
-
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(panelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(24, Short.MAX_VALUE))
-        );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(panelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(21, Short.MAX_VALUE))
-        );
-
-        jScrollPane1.setViewportView(jPanel4);
+        jScrollPane1.setViewportView(panelContainer);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -358,7 +359,6 @@ public class Perangkat extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPanel panelContainer;
     private javax.swing.JTextField txtSearch;
