@@ -19,6 +19,20 @@ public class Perangkat extends javax.swing.JFrame {
      */
     public Perangkat() {
         initComponents();
+        panelContainer.add(
+        new CardPerangkat()
+        );
+
+        panelContainer.add(
+        new CardPerangkat()
+        );
+
+        panelContainer.add(
+        new CardPerangkat()
+        );
+
+        panelContainer.revalidate();
+        panelContainer.repaint();
         
 
     }

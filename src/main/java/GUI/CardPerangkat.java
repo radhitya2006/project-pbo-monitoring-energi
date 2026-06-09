@@ -3,6 +3,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
 package GUI;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  *
@@ -14,7 +16,30 @@ public class CardPerangkat extends javax.swing.JPanel {
      * Creates new form CardPerangkat
      */
     public CardPerangkat() {
-        initComponents();
+        setPreferredSize(
+                new Dimension(250, 180)
+        );
+
+        setBackground(Color.WHITE);
+
+        setBorder(
+                BorderFactory.createLineBorder(
+                        Color.LIGHT_GRAY
+                )
+        );
+
+        JLabel lblNama =
+                new JLabel("AC Kamar");
+
+        lblNama.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        16
+                )
+        );
+
+        add(lblNama);
     }
 
     /**
