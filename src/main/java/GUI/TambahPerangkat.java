@@ -249,11 +249,59 @@ public class TambahPerangkat extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextField1ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        try {
+            // 1. Validasi ComboBox Jenis Perangkat
+            String jenis = jComboBox1.getSelectedItem().toString();
+            if (jenis.equals("Pilih Jenis Perangkat")) {
+                JOptionPane.showMessageDialog(this, "Silakan pilih jenis perangkat terlebih dahulu!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                return; // Hentikan proses jika jenis belum dipilih
+            }
+
+            // 2. Ambil data teks dan konversi ke angka
+            String nama = jTextField1.getText();
+            double daya = Double.parseDouble(jTextField2.getText());
+            double waktu = Double.parseDouble(jTextField3.getText()); // Lama pemakaian
+
+            // 3. Deklarasi objek superclass
+            PerangkatListrik perangkatBaru = null;
+
+            // 4. Instansiasi objek berdasarkan subclass
+            if (jenis.equals("AC")) {
+                double cop = 1.0; 
+                if (!jTextField4.getText().isEmpty()) {
+                    cop = Double.parseDouble(jTextField4.getText());
+                }
+                // Tambahkan (int) sebelum variabel daya
+                perangkatBaru = new AC(nama, (int) daya, waktu, cop); 
+                
+            } else if (jenis.equals("Lampu")) {
+                // Tambahkan (int) sebelum variabel daya
+                perangkatBaru = new Lampu(nama, (int) daya, waktu);
+                
+            } else if (jenis.equals("Televisi")) {
+                // Tambahkan (int) sebelum variabel daya
+                perangkatBaru = new Televisi(nama, (int) daya, waktu);
+            }
+
+            // 5. Simpan ke sistem dan refresh UI parent
+            if (perangkatBaru != null) {
+                sistem.tambahPerangkat(perangkatBaru); // Menyimpan data ke ArrayList
+                parent.tampilkanData();                // Memanggil method refresh di form Perangkat
+                
+                JOptionPane.showMessageDialog(this, "Perangkat berhasil ditambahkan!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+                this.dispose();                        // Menutup jendela TambahPerangkat
+            }
+
+        } catch (NumberFormatException e) {
+            // Akan tereksekusi jika user mengetik huruf di kolom Daya, Waktu, atau COP
+            JOptionPane.showMessageDialog(this, "Kolom Daya, Lama Pemakaian, dan COP harus diisi dengan angka yang valid!", "Error Input", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Terjadi kesalahan: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
+        this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     /**

@@ -22,52 +22,40 @@ public class Perangkat extends javax.swing.JFrame {
      */
     public Perangkat() {
         initComponents();
+        // 1. Atur layout grid agar rapi (2 kolom)
+        panelContainer.setLayout(new java.awt.GridLayout(0, 2, 15, 15));
+        
+        // 2. Panggil method untuk me-refresh data card dari sistem
+        tampilkanData();
  
-    panelContainer.add(
-            new CardPerangkat(
-                    "AC Kamar",
-                    "AC",
-                    900,
-                    7.2,
-                    "Aktif"
-            )
-    );
+    
+    }
+    
+    public void tampilkanData() {
+        // Bersihkan area panel dari card lama
+        panelContainer.removeAll(); 
 
-    panelContainer.add(
-            new CardPerangkat(
-                    "Lampu Teras",
-                    "Lampu",
-                    20,
-                    0.8,
-                    "Aktif"
-            )
-    );
+        // Ambil data perangkat dari SistemMonitoring, lalu looping
+        for (com.mycompany.monitoringenergirumah.Model.PerangkatListrik p : sistem.getPerangkatList()) {
+            
+            // Ambil jenis class otomatis (akan menghasilkan String "AC", "Lampu", atau "Televisi")
+            String jenis = p.getClass().getSimpleName();
+            
+            // Tambahkan CardPerangkat ke layar
+            panelContainer.add(
+                new CardPerangkat(
+                    p.getNama(), 
+                    jenis, 
+                    p.getDaya(), 
+                    p.hitungEnergi(), 
+                    "Aktif" // Status default sementara
+                )
+            );
+        }
 
-    panelContainer.add(
-            new CardPerangkat(
-                    "TV Ruang Tamu",
-                    "Televisi",
-                    120,
-                    1.5,
-                    "Mati"
-            )
-    );
-
-    panelContainer.add(
-            new CardPerangkat(
-                    "AC Ruang Tamu",
-                    "AC",
-                    750,
-                    5.8,
-                    "Aktif"
-            )
-    );
-
-    panelContainer.revalidate();
-    panelContainer.repaint();
-        
-        
-
+        // Segarkan tampilan layar
+        panelContainer.revalidate();
+        panelContainer.repaint();
     }
 
     /**
