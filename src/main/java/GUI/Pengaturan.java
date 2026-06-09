@@ -193,6 +193,7 @@ public class Pengaturan extends javax.swing.JFrame {
                 .addGap(47, 47, 47))
         );
 
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel1.setText("Pengaturan");
 
         jLabel2.setText("Selamat datang, nama user");
