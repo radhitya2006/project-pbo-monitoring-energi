@@ -163,7 +163,10 @@ public class Perangkat extends javax.swing.JFrame {
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel6.setText("Daftar Perangkat");
 
+        btnTambahPerangkat.setBackground(new java.awt.Color(0, 204, 255));
+        btnTambahPerangkat.setForeground(new java.awt.Color(255, 255, 255));
         btnTambahPerangkat.setText("+ Tambah Perangkat");
+        btnTambahPerangkat.setBorderPainted(false);
         btnTambahPerangkat.addActionListener(this::btnTambahPerangkatActionPerformed);
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));

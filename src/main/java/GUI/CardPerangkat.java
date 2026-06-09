@@ -73,6 +73,22 @@ public class CardPerangkat extends JPanel {
 
         btnEdit = new JButton("Edit");
         btnHapus = new JButton("Hapus");
+        
+        
+        Color warnaBiruKustom = new Color(0, 204, 255);
+        
+        btnEdit.setBackground(warnaBiruKustom);
+        btnEdit.setForeground(Color.WHITE);                     // Warna teks putih
+        btnEdit.setFont(new Font("Segoe UI", Font.BOLD, 12));  // Gunakan font semi-bold agar tegas
+        btnEdit.setBorderPainted(false);                       // Hilangkan border kaku
+        btnEdit.setFocusPainted(false);                        // Hilangkan garis putus-putus saat diklik
+
+        // 4. Atur desain tombol HAPUS agar senada dengan Dashboard
+        btnHapus.setBackground(warnaBiruKustom);
+        btnHapus.setForeground(Color.WHITE);
+        btnHapus.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnHapus.setBorderPainted(false);
+        btnHapus.setFocusPainted(false);
 
         panelFooter.add(btnEdit);
         panelFooter.add(btnHapus);
