@@ -181,8 +181,14 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="txtDaya">
+          <Events>
+            <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txtDayaKeyReleased"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JTextField" name="txtLamaPemakaian">
+          <Events>
+            <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txtLamaPemakaianKeyReleased"/>
+          </Events>
         </Component>
         <Container class="javax.swing.JPanel" name="jPanel2">
           <Properties>
@@ -325,6 +331,9 @@
               </Properties>
             </Component>
             <Component class="javax.swing.JTextField" name="txtCop">
+              <Events>
+                <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txtCopKeyReleased"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>

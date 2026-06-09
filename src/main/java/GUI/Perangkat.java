@@ -41,17 +41,20 @@ public class Perangkat extends javax.swing.JFrame {
             
             // Ambil jenis class otomatis (akan menghasilkan String "AC", "Lampu", atau "Televisi")
             String jenis = p.getClass().getSimpleName();
+            double energi = p.hitungEnergi();
+            double biaya = sistem.getKalkulator().hitungBiayaDenganPajak(energi);
             
-            // Tambahkan CardPerangkat ke layar
-            panelContainer.add(
-                new CardPerangkat(
+            // 1. Buat object card-nya dengan parameter baru
+            CardPerangkat card = new CardPerangkat(
                     p.getNama(), 
                     jenis, 
-                    p.getDaya(), 
-                    p.hitungEnergi(), 
-                    "Aktif" // Status default sementara
-                )
+                    (int) p.getDaya(), 
+                    energi, 
+                    biaya, // <-- Masukkan variabel biaya ke sini
+                    "Aktif" 
             );
+            
+            panelContainer.add(card);
         }
 
         // Segarkan tampilan layar

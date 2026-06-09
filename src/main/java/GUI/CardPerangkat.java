@@ -66,7 +66,7 @@ public class CardPerangkat extends JPanel {
         lblEnergi = new JLabel(String.format("Energi : %.2f kWh", energi));
         
         // 4. Inisialisasi label biaya dengan format Rupiah
-        lblBiaya = new JLabel(String.format("Biaya : Rp %,.0f", biaya));
+        lblBiaya = new JLabel(String.format("Biaya : Rp %,.0f Per Hari", biaya));
 
         panelBody.add(lblJenis);
         panelBody.add(lblDaya);

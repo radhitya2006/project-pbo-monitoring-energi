@@ -131,6 +131,18 @@ public class TambahPerangkat extends javax.swing.JFrame {
 
         jLabel5.setText("Lama Pemakaian (Jam)");
 
+        txtDaya.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtDayaKeyReleased(evt);
+            }
+        });
+
+        txtLamaPemakaian.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtLamaPemakaianKeyReleased(evt);
+            }
+        });
+
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
         jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
@@ -187,6 +199,12 @@ public class TambahPerangkat extends javax.swing.JFrame {
         jPanel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jLabel7.setText("Nilai COP");
+
+        txtCop.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtCopKeyReleased(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -352,6 +370,18 @@ public class TambahPerangkat extends javax.swing.JFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void txtDayaKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtDayaKeyReleased
+        hitungEstimasi();
+    }//GEN-LAST:event_txtDayaKeyReleased
+
+    private void txtLamaPemakaianKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtLamaPemakaianKeyReleased
+        hitungEstimasi();
+    }//GEN-LAST:event_txtLamaPemakaianKeyReleased
+
+    private void txtCopKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCopKeyReleased
+        hitungEstimasi();
+    }//GEN-LAST:event_txtCopKeyReleased
 
     /**
      * @param args the command line arguments
