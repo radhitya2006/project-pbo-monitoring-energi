@@ -61,9 +61,14 @@ public class SistemMonitoring {
     }
  
     /** Menghitung total estimasi biaya listrik termasuk pajak */
+    public double hitungTotalBiaya() {
+        return kalkulator.hitungBiayaDenganPajak(totalEnergi());
+    } 
+    
     public double hitungBiayaPerangkat(com.mycompany.monitoringenergirumah.Model.PerangkatListrik p) {
         return kalkulator.hitungBiayaDenganPajak(p.hitungEnergi());
-    } 
+    }
+    
     // =========================================================
     // Tampilan
     // =========================================================

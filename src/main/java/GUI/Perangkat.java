@@ -55,7 +55,7 @@ public class Perangkat extends javax.swing.JFrame {
     }
     
     
-    private void tampilkanData() {
+    public void tampilkanData() {
         // 1. Bersihkan layar sebelum diisi ulang
         panelContainer.removeAll(); 
 

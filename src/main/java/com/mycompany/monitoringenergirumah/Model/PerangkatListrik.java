@@ -96,7 +96,7 @@ public abstract class PerangkatListrik {
         return tanggalPemasangan;
     }
 
-    public void setTanggalPemasangan(LocalDate tanggalPemasangan) {
+    public void setTanggalPemasangan(java.time.LocalDate tanggalPemasangan) {
         this.tanggalPemasangan = tanggalPemasangan;
     }
 
