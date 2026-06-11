@@ -23,6 +23,8 @@ public class SignIn extends javax.swing.JFrame {
     public SignIn(AuthService authService) {
         this.authService = authService;
         initComponents();
+        
+        this.setLocationRelativeTo(null);
         //initLogic();
     }
 
@@ -181,6 +183,7 @@ public class SignIn extends javax.swing.JFrame {
     private void btnSignUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignUpActionPerformed
         SignUp signup = new SignUp(this.authService);
         signup.setVisible(true);
+        
         this.dispose();
     }//GEN-LAST:event_btnSignUpActionPerformed
 
@@ -237,6 +240,7 @@ public class SignIn extends javax.swing.JFrame {
             passField.requestFocus();
         }
     }
+    
     /**
      * @param args the command line arguments
      */
