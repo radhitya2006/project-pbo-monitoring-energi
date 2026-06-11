@@ -169,6 +169,7 @@ public class Perangkat extends javax.swing.JFrame {
         jPanel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         comboJenis.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Semua Jenis", "AC", "Lampu", "Televisi\t" }));
+        comboJenis.setOpaque(true);
 
         txtSearch.setForeground(new java.awt.Color(204, 204, 204));
         txtSearch.setText("Cari Perangkat....");
@@ -198,6 +199,7 @@ public class Perangkat extends javax.swing.JFrame {
         jScrollPane1.setForeground(new java.awt.Color(255, 255, 255));
 
         jPanel4.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel4.setOpaque(false);
 
         panelContainer.setBackground(new java.awt.Color(255, 255, 255));
         panelContainer.setBorder(javax.swing.BorderFactory.createEtchedBorder());
