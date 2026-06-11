@@ -17,9 +17,6 @@ public class SignIn extends javax.swing.JFrame {
 
     private AuthService authService;
     
-    public SignIn() {
-        this(new AuthService());
-    }
     /**
      * Creates new form SignIn
      */
@@ -182,7 +179,7 @@ public class SignIn extends javax.swing.JFrame {
     }//GEN-LAST:event_btnPassActionPerformed
 
     private void btnSignUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignUpActionPerformed
-        SignUp signup = new SignUp();
+        SignUp signup = new SignUp(this.authService);
         signup.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnSignUpActionPerformed
@@ -260,9 +257,9 @@ public class SignIn extends javax.swing.JFrame {
             logger.log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        com.mycompany.monitoringenergirumah.Service.AuthService auth = new com.mycompany.monitoringenergirumah.Service.AuthService();
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new SignIn().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new SignIn(auth).setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
