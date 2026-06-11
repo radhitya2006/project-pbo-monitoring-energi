@@ -55,66 +55,62 @@ public class Perangkat extends javax.swing.JFrame {
     }
     
     
-    public void tampilkanData() {
-        // Bersihkan area panel dari card lama
+    private void tampilkanData() {
+        // 1. Bersihkan layar sebelum diisi ulang
         panelContainer.removeAll(); 
 
-        // Looping data perangkat
+        // 2. Looping semua perangkat yang ada di dalam sistem
         for (com.mycompany.monitoringenergirumah.Model.PerangkatListrik p : sistem.getPerangkatList()) {
             
-            String jenis = p.getClass().getSimpleName();
-            double energi = p.hitungEnergi();
-            double biaya = sistem.getKalkulator().hitungBiayaDenganPajak(energi);
-            
-            // 1. Buat object card-nya
-            CardPerangkat card = new CardPerangkat(
-                    p.getNama(), 
-                    jenis, 
-                    (int) p.getDaya(), 
-                    energi, 
-                    biaya, 
-                    "Aktif" 
-            );
+            // ========================================================
+            // FITUR SOFT DELETE: Hanya buat card JIKA statusnya "Aktif"
+            // ========================================================
+            if (p.getStatus().equalsIgnoreCase("Aktif")) {
+                
+                // Ambil data untuk dilempar ke Card
+                String lokasi = p.getNama(); // Ingat: getNama() sekarang berfungsi sebagai Lokasi
+                String jenis = p.getClass().getSimpleName(); // Mengambil nama class anaknya (AC, Lampu, dll)
+                int daya = p.getDaya();
+                double energi = p.hitungEnergi();
+                double biaya = sistem.hitungBiayaPerangkat(p);
+                
+                // Format Tanggal Estimasi Rusak biar rapi (Contoh: 12 Ags 2031)
+                String estimasi = "Belum ada data";
+                if (p.getEstimasiRusak() != null) {
+                    java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy");
+                    estimasi = p.getEstimasiRusak().format(formatter);
+                }
 
-            // ==========================================
-            // 2. FUNGSI TOMBOL HAPUS
-            // ==========================================
-            card.getBtnHapus().addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    // Munculkan konfirmasi Yes/No
-                    int konfirmasi = javax.swing.JOptionPane.showConfirmDialog(
-                            Perangkat.this, 
-                            "Apakah Anda yakin ingin menghapus " + p.getNama() + "?", 
-                            "Konfirmasi Hapus", 
-                            javax.swing.JOptionPane.YES_NO_OPTION,
-                            javax.swing.JOptionPane.WARNING_MESSAGE
-                    );
-                    
-                    // Jika diklik Yes (Iya)
-                    if (konfirmasi == javax.swing.JOptionPane.YES_OPTION) {
-                        sistem.hapusPerangkat(p.getNama()); // Hapus dari sistem
-                        tampilkanData(); // Refresh UI langsung
+                String status = p.getStatus();
+
+                // 3. Panggil CardPerangkat dengan parameter BARU yang sudah lengkap
+                CardPerangkat card = new CardPerangkat(lokasi, jenis, daya, energi, biaya, estimasi, status);
+
+                // 4. Aktifkan fungsi tombol Edit
+                card.getBtnEdit().addActionListener(e -> {
+                    // (Nanti bisa disambung ke halaman EditPerangkat)
+                    javax.swing.JOptionPane.showMessageDialog(this, "Edit: " + jenis + " - " + lokasi);
+                });
+
+                // 5. Aktifkan fungsi tombol Nonaktifkan (Fitur Dosen!)
+                card.getBtnNonaktif().addActionListener(e -> {
+                    int confirm = javax.swing.JOptionPane.showConfirmDialog(this, 
+                        "Yakin ingin mempensiunkan " + jenis + " di " + lokasi + "?\nData akan dipindahkan ke halaman Laporan (Riwayat).", 
+                        "Konfirmasi Nonaktif", 
+                        javax.swing.JOptionPane.YES_NO_OPTION);
+                        
+                    if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+                        p.setStatus("Riwayat"); // Ini dia keajaiban Soft Delete
+                        tampilkanData();        // Refresh halaman agar card langsung lenyap
                     }
-                }
-            });
+                });
 
-            // ==========================================
-            // 3. FUNGSI TOMBOL EDIT
-            // ==========================================
-            card.getBtnEdit().addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    // Panggil form TambahPerangkat menggunakan mode Edit (melempar objek 'p')
-                    TambahPerangkat formEdit = new TambahPerangkat(Perangkat.this, sistem, p);
-                    formEdit.setLocationRelativeTo(Perangkat.this);
-                    formEdit.setVisible(true);
-                }
-            });
-
-            // 4. Masukkan card yang sudah ada fungsinya ke layar
-            panelContainer.add(card); 
+                // 6. Masukkan card yang sudah jadi ke dalam container
+                panelContainer.add(card);
+            }
         }
 
-        // Segarkan tampilan layar
+        // 7. Render ulang tampilannya
         panelContainer.revalidate();
         panelContainer.repaint();
     }
