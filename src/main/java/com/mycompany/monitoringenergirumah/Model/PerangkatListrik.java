@@ -30,9 +30,6 @@ public abstract class PerangkatListrik {
         this.batasUmurJam = 15000;                
     }
     
-    // =========================================================
-    // METHOD REVISI DOSEN: LOGIKA LOKASI & ESTIMASI
-    // =========================================================
     public LocalDate getEstimasiRusak() {
         if (this.lamaPemakaian <= 0) {
             return null; 
