@@ -27,12 +27,7 @@ public class PerhitunganBiaya {
         return energiKwh * tarifPerKwh;
     }
     
-    /**
-     * Menghitung biaya listrik sudah termasuk pajak.
-     *
-     * @param energiKwh total energi dalam kWh
-     * @return biaya dalam Rupiah (termasuk PPJ)
-     */
+    
     public double hitungBiayaDenganPajak(double energiKwh) {
         double biayaPokok = hitungBiaya(energiKwh);
         return biayaPokok + (biayaPokok * persentasePajak);
