@@ -17,15 +17,14 @@ public class SignIn extends javax.swing.JFrame {
 
     private AuthService authService;
     
-    public SignIn() {
-        this(new AuthService());
-    }
     /**
      * Creates new form SignIn
      */
     public SignIn(AuthService authService) {
         this.authService = authService;
         initComponents();
+        
+        this.setLocationRelativeTo(null);
         //initLogic();
     }
 
@@ -106,16 +105,16 @@ public class SignIn extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(jPanel1Layout.createSequentialGroup()
                             .addGap(20, 20, 20)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel4)
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                    .addGap(136, 136, 136)
-                                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGap(18, 18, 18)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(emailField, javax.swing.GroupLayout.PREFERRED_SIZE, 489, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel4))
+                                .addGroup(jPanel1Layout.createSequentialGroup()
+                                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                     .addComponent(btnSignUp, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGap(127, 127, 127))
-                                .addComponent(emailField, javax.swing.GroupLayout.PREFERRED_SIZE, 489, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGap(132, 132, 132))))
                         .addGroup(jPanel1Layout.createSequentialGroup()
                             .addGap(153, 153, 153)
                             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -135,8 +134,8 @@ public class SignIn extends javax.swing.JFrame {
                 .addGap(57, 57, 57)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(emailField, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(emailField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(passField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -181,8 +180,9 @@ public class SignIn extends javax.swing.JFrame {
     }//GEN-LAST:event_btnPassActionPerformed
 
     private void btnSignUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignUpActionPerformed
-        SignUp signup = new SignUp();
+        SignUp signup = new SignUp(this.authService);
         signup.setVisible(true);
+        
         this.dispose();
     }//GEN-LAST:event_btnSignUpActionPerformed
 
@@ -239,6 +239,7 @@ public class SignIn extends javax.swing.JFrame {
             passField.requestFocus();
         }
     }
+    
     /**
      * @param args the command line arguments
      */
@@ -259,9 +260,9 @@ public class SignIn extends javax.swing.JFrame {
             logger.log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        com.mycompany.monitoringenergirumah.Service.AuthService auth = new com.mycompany.monitoringenergirumah.Service.AuthService();
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new SignIn().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new SignIn(auth).setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

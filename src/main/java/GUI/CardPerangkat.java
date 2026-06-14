@@ -6,27 +6,29 @@ import javax.swing.border.EmptyBorder;
 
 public class CardPerangkat extends JPanel {
 
-    private JLabel lblNama;
-    private JLabel lblJenis;
+    private JLabel lblHeader;
+    private JLabel lblStatus;
     private JLabel lblDaya;
     private JLabel lblEnergi;
-    private JLabel lblBiaya; // <-- 1. Tambahkan variabel baru untuk Biaya
+    private JLabel lblBiaya;
+    private JLabel lblEstimasi;
   
 
     private JButton btnEdit;
-    private JButton btnHapus;
+    private JButton btnNonaktif;
 
-    // 2. Tambahkan 'double biaya' pada parameter
     public CardPerangkat(
-            String nama,
+            String lokasi, 
             String jenis,
             int daya,
             double energi,
             double biaya, 
+            String estimasiRusak, // <-- Data baru dari backend
             String status
     ) {
 
-        setPreferredSize(new Dimension(260, 200)); // Sedikit tinggikan card agar muat (dari 180 ke 200)
+        // Sedikit tinggikan card agar muat 5 baris (dari 200 ke 220)
+        setPreferredSize(new Dimension(260, 220)); 
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
         setLayout(new BorderLayout());
@@ -38,10 +40,10 @@ public class CardPerangkat extends JPanel {
         panelHeader.setOpaque(false);
         panelHeader.setBorder(new EmptyBorder(10,10,5,10));
 
-        lblNama = new JLabel(nama);
-        lblNama.setFont(new Font("Segoe UI", Font.BOLD, 16));
-
-        
+        // Tampilkan format canggih: "Jenis - Lokasi" (Misal: AC - Kamar Utama)
+        lblHeader = new JLabel(jenis + " - " + lokasi);
+        lblHeader.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        panelHeader.add(lblHeader, BorderLayout.CENTER);
 
         // =========================
         // Body
@@ -49,21 +51,26 @@ public class CardPerangkat extends JPanel {
         JPanel panelBody = new JPanel();
         panelBody.setOpaque(false);
         
-        // 3. Ubah GridLayout menjadi 4 baris (sebelumnya 3)
-        panelBody.setLayout(new GridLayout(4,1)); 
+        // Ubah GridLayout menjadi 5 baris (sebelumnya 4)
+        panelBody.setLayout(new GridLayout(5,1)); 
         panelBody.setBorder(new EmptyBorder(5,10,5,10));
 
-        lblJenis = new JLabel("Jenis : " + jenis);
+        
+        lblStatus = new JLabel("Status : " + status); 
         lblDaya = new JLabel("Daya : " + daya + " Watt");
         lblEnergi = new JLabel(String.format("Energi : %.2f kWh", energi));
-        
-        // 4. Inisialisasi label biaya dengan format Rupiah
         lblBiaya = new JLabel(String.format("Biaya : Rp %,.0f Per Hari", biaya));
+        
+        
+        lblEstimasi = new JLabel("Estimasi Rusak : " + estimasiRusak);
+        lblEstimasi.setForeground(new Color(204, 51, 0));
+        lblEstimasi.setFont(new Font("Segoe UI", Font.BOLD, 12));
 
-        panelBody.add(lblJenis);
+        panelBody.add(lblStatus);
         panelBody.add(lblDaya);
         panelBody.add(lblEnergi);
-        panelBody.add(lblBiaya); // <-- 5. Masukkan ke dalam panel
+        panelBody.add(lblBiaya);
+        panelBody.add(lblEstimasi); // <-- Masukkan ke dalam panel
 
         // =========================
         // Footer
@@ -72,26 +79,26 @@ public class CardPerangkat extends JPanel {
         panelFooter.setOpaque(false);
 
         btnEdit = new JButton("Edit");
-        btnHapus = new JButton("Hapus");
-        
-        
-        Color warnaBiruKustom = new Color(0, 204, 255);
-        
-        btnEdit.setBackground(warnaBiruKustom);
-        btnEdit.setForeground(Color.WHITE);                     // Warna teks putih
-        btnEdit.setFont(new Font("Segoe UI", Font.BOLD, 12));  // Gunakan font semi-bold agar tegas
-        btnEdit.setBorderPainted(false);                       // Hilangkan border kaku
-        btnEdit.setFocusPainted(false);                        // Hilangkan garis putus-putus saat diklik
+        btnNonaktif = new JButton("Nonaktifkan"); // <-- Teks diubah
 
-        // 4. Atur desain tombol HAPUS agar senada dengan Dashboard
-        btnHapus.setBackground(warnaBiruKustom);
-        btnHapus.setForeground(Color.WHITE);
-        btnHapus.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnHapus.setBorderPainted(false);
-        btnHapus.setFocusPainted(false);
+        Color warnaBiruKustom = new Color(0, 204, 255);
+
+        // Desain tombol Edit
+        btnEdit.setBackground(warnaBiruKustom);
+        btnEdit.setForeground(Color.WHITE);                     
+        btnEdit.setFont(new Font("Segoe UI", Font.BOLD, 12));  
+        btnEdit.setBorderPainted(false);                       
+        btnEdit.setFocusPainted(false);                        
+
+        // Desain tombol Nonaktif
+        btnNonaktif.setBackground(new Color(255, 102, 102));
+        btnNonaktif.setForeground(Color.WHITE);
+        btnNonaktif.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnNonaktif.setBorderPainted(false);
+        btnNonaktif.setFocusPainted(false);
 
         panelFooter.add(btnEdit);
-        panelFooter.add(btnHapus);
+        panelFooter.add(btnNonaktif);
 
         // =========================
         add(panelHeader, BorderLayout.NORTH);
@@ -103,7 +110,8 @@ public class CardPerangkat extends JPanel {
         return btnEdit;
     }
 
-    public JButton getBtnHapus() {
-        return btnHapus;
+  
+    public JButton getBtnNonaktif() {
+        return btnNonaktif;
     }
 }

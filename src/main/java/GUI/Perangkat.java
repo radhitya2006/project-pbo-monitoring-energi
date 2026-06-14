@@ -56,65 +56,61 @@ public class Perangkat extends javax.swing.JFrame {
     
     
     public void tampilkanData() {
-        // Bersihkan area panel dari card lama
+        // 1. Bersihkan layar sebelum diisi ulang
         panelContainer.removeAll(); 
 
-        // Looping data perangkat
+        // 2. Looping semua perangkat yang ada di dalam sistem
         for (com.mycompany.monitoringenergirumah.Model.PerangkatListrik p : sistem.getPerangkatList()) {
             
-            String jenis = p.getClass().getSimpleName();
-            double energi = p.hitungEnergi();
-            double biaya = sistem.getKalkulator().hitungBiayaDenganPajak(energi);
-            
-            // 1. Buat object card-nya
-            CardPerangkat card = new CardPerangkat(
-                    p.getNama(), 
-                    jenis, 
-                    (int) p.getDaya(), 
-                    energi, 
-                    biaya, 
-                    "Aktif" 
-            );
+            // ========================================================
+            // FITUR SOFT DELETE: Hanya buat card JIKA statusnya "Aktif"
+            // ========================================================
+            if (p.getStatus().equalsIgnoreCase("Aktif")) {
+                
+                // Ambil data untuk dilempar ke Card
+                String lokasi = p.getNama(); // Ingat: getNama() sekarang berfungsi sebagai Lokasi
+                String jenis = p.getClass().getSimpleName(); // Mengambil nama class anaknya (AC, Lampu, dll)
+                int daya = p.getDaya();
+                double energi = p.hitungEnergi();
+                double biaya = sistem.hitungBiayaPerangkat(p);
+                
+                // Format Tanggal Estimasi Rusak biar rapi (Contoh: 12 Ags 2031)
+                String estimasi = "Belum ada data";
+                if (p.getEstimasiRusak() != null) {
+                    java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy");
+                    estimasi = p.getEstimasiRusak().format(formatter);
+                }
 
-            // ==========================================
-            // 2. FUNGSI TOMBOL HAPUS
-            // ==========================================
-            card.getBtnHapus().addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    // Munculkan konfirmasi Yes/No
-                    int konfirmasi = javax.swing.JOptionPane.showConfirmDialog(
-                            Perangkat.this, 
-                            "Apakah Anda yakin ingin menghapus " + p.getNama() + "?", 
-                            "Konfirmasi Hapus", 
-                            javax.swing.JOptionPane.YES_NO_OPTION,
-                            javax.swing.JOptionPane.WARNING_MESSAGE
-                    );
-                    
-                    // Jika diklik Yes (Iya)
-                    if (konfirmasi == javax.swing.JOptionPane.YES_OPTION) {
-                        sistem.hapusPerangkat(p.getNama()); // Hapus dari sistem
-                        tampilkanData(); // Refresh UI langsung
+                String status = p.getStatus();
+
+                // 3. Panggil CardPerangkat dengan parameter BARU yang sudah lengkap
+                CardPerangkat card = new CardPerangkat(lokasi, jenis, daya, energi, biaya, estimasi, status);
+
+                // 4. Aktifkan fungsi tombol Edit
+                card.getBtnEdit().addActionListener(e -> {
+                    // (Nanti bisa disambung ke halaman EditPerangkat)
+                    javax.swing.JOptionPane.showMessageDialog(this, "Edit: " + jenis + " - " + lokasi);
+                });
+
+                // 5. Aktifkan fungsi tombol Nonaktifkan (Fitur Dosen!)
+                card.getBtnNonaktif().addActionListener(e -> {
+                    int confirm = javax.swing.JOptionPane.showConfirmDialog(this, 
+                        "Yakin ingin mempensiunkan " + jenis + " di " + lokasi + "?\nData akan dipindahkan ke halaman Laporan (Riwayat).", 
+                        "Konfirmasi Nonaktif", 
+                        javax.swing.JOptionPane.YES_NO_OPTION);
+                        
+                    if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+                        p.setStatus("Riwayat"); // Ini dia keajaiban Soft Delete
+                        tampilkanData();        // Refresh halaman agar card langsung lenyap
                     }
-                }
-            });
+                });
 
-            // ==========================================
-            // 3. FUNGSI TOMBOL EDIT
-            // ==========================================
-            card.getBtnEdit().addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    // Panggil form TambahPerangkat menggunakan mode Edit (melempar objek 'p')
-                    TambahPerangkat formEdit = new TambahPerangkat(Perangkat.this, sistem, p);
-                    formEdit.setLocationRelativeTo(Perangkat.this);
-                    formEdit.setVisible(true);
-                }
-            });
-
-            // 4. Masukkan card yang sudah ada fungsinya ke layar
-            panelContainer.add(card); 
+                // 6. Masukkan card yang sudah jadi ke dalam container
+                panelContainer.add(card);
+            }
         }
 
-        // Segarkan tampilan layar
+        // 7. Render ulang tampilannya
         panelContainer.revalidate();
         panelContainer.repaint();
     }
@@ -173,6 +169,7 @@ public class Perangkat extends javax.swing.JFrame {
         jPanel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         comboJenis.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Semua Jenis", "AC", "Lampu", "Televisi\t" }));
+        comboJenis.setOpaque(true);
 
         txtSearch.setForeground(new java.awt.Color(204, 204, 204));
         txtSearch.setText("Cari Perangkat....");
@@ -202,6 +199,7 @@ public class Perangkat extends javax.swing.JFrame {
         jScrollPane1.setForeground(new java.awt.Color(255, 255, 255));
 
         jPanel4.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel4.setOpaque(false);
 
         panelContainer.setBackground(new java.awt.Color(255, 255, 255));
         panelContainer.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -214,7 +212,7 @@ public class Perangkat extends javax.swing.JFrame {
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(panelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(611, Short.MAX_VALUE))
+                .addContainerGap(994, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -245,7 +243,7 @@ public class Perangkat extends javax.swing.JFrame {
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 1006, Short.MAX_VALUE)
                             .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)

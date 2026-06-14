@@ -27,6 +27,7 @@ public class SignUp extends javax.swing.JFrame {
     public SignUp(AuthService authService) {
         this.authService = authService;
         initComponents();
+        this.setLocationRelativeTo(null);
         
         
     }
