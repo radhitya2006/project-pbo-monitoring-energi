@@ -56,8 +56,9 @@ public class Pengaturan extends javax.swing.JFrame {
 
         jTable1.setModel(model); // 🔥 ini dari luar GUI builder
 
-    } catch (SQLException e) {
-    }
+   } catch (SQLException e) {
+    e.printStackTrace();
+}
 }
     /**
      * This method is called from within the constructor to initialize the form.
