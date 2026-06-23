@@ -173,9 +173,11 @@ public class Perangkat extends javax.swing.JFrame {
                 lokasi, jenis, daya, energi, biaya, estimasi, status
             );
 
-            card.getBtnEdit().addActionListener(e ->
-                javax.swing.JOptionPane.showMessageDialog(this, "Edit: " + jenis + " - " + lokasi)
-            );
+            card.getBtnEdit().addActionListener(e -> {
+                TambahPerangkat formEdit = new TambahPerangkat(this, sistem, p); // ← pakai constructor ke-2
+                formEdit.setLocationRelativeTo(this);
+                formEdit.setVisible(true);
+            });
 
             // Tombol aksi berbeda sesuai status
             if (status.equals(PerangkatListrik.STATUS_AKTIF)) {
@@ -210,6 +212,10 @@ public class Perangkat extends javax.swing.JFrame {
     panelContainer.repaint();
 }
     
+    public void refreshData() {
+        filterData();
+}
+    
     private void initFilter() {
     // Reset model comboJenis (hapus tab \t di "Televisi")
     comboJenis.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{
@@ -224,14 +230,16 @@ public class Perangkat extends javax.swing.JFrame {
     txtSearch.addFocusListener(new java.awt.event.FocusAdapter() {
         @Override
         public void focusGained(java.awt.event.FocusEvent e) {
-            if (txtSearch.getText().equals("Cari Perangkat....")) {
+            if (isPlaceholderActive) {
+                isPlaceholderActive = false; // ← tambahkan ini
                 txtSearch.setText("");
                 txtSearch.setForeground(java.awt.Color.BLACK);
-            }
-        }
+        }   
+    }
         @Override
         public void focusLost(java.awt.event.FocusEvent e) {
             if (txtSearch.getText().isBlank()) {
+                isPlaceholderActive = true;
                 txtSearch.setText("Cari Perangkat....");
                 txtSearch.setForeground(new java.awt.Color(204, 204, 204));
             }
@@ -540,7 +548,7 @@ public class Perangkat extends javax.swing.JFrame {
 
         form.setLocationRelativeTo(this);
         form.setVisible(true);
-        filterData();
+        
     }//GEN-LAST:event_btnTambahPerangkatActionPerformed
 
     private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed

@@ -365,38 +365,55 @@ public class TambahPerangkat extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
-            String jenis = pilihJenis.getSelectedItem().toString();
-            if (jenis.equals("Pilih Jenis Perangkat")) {
-            JOptionPane.showMessageDialog(this, "Silakan pilih jenis perangkat terlebih dahulu!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+        String jenis = pilihJenis.getSelectedItem().toString();
+        if (jenis.equals("Pilih Jenis Perangkat")) {
+            JOptionPane.showMessageDialog(this, "Silakan pilih jenis perangkat!", "Peringatan", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        
+
         String lokasi = comboboxLokasi.getSelectedItem().toString();
         if (lokasi.equals("Masukkan Lokasi")) {
             JOptionPane.showMessageDialog(this, "Silakan pilih lokasi pemasangan!", "Peringatan", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // --- PROSES AMBIL TANGGAL DARI JDATECHOOSER ---
         java.util.Date tanggalPilih = jDateChooser1.getDate();
         if (tanggalPilih == null) {
             JOptionPane.showMessageDialog(this, "Silakan pilih tanggal pemasangan!", "Peringatan", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        // Konversi ke LocalDate
-        java.time.LocalDate tanggalInput = tanggalPilih.toInstant()
-                                          .atZone(java.time.ZoneId.systemDefault())
-                                          .toLocalDate();
 
-        double daya = Double.parseDouble(txtDaya.getText());
+        java.time.LocalDate tanggalInput = tanggalPilih.toInstant()
+                .atZone(java.time.ZoneId.systemDefault())
+                .toLocalDate();
+
+        double daya  = Double.parseDouble(txtDaya.getText());
         double waktu = Double.parseDouble(txtLamaPemakaian.getText());
 
+        // ── MODE EDIT ──
+        if (perangkatEdit != null) {
+            perangkatEdit.setNama(lokasi);
+            perangkatEdit.setDaya((int) daya);
+            perangkatEdit.setLamaPemakaian(waktu);
+            perangkatEdit.setTanggalPemasangan(tanggalInput);
+
+            if (perangkatEdit instanceof AC && !txtCop.getText().isEmpty()) {
+                ((AC) perangkatEdit).setCop(Double.parseDouble(txtCop.getText()));
+            }
+
+            JOptionPane.showMessageDialog(this, "Perangkat berhasil diperbarui!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            parent.refreshData(); // ← panggil refreshData setelah edit
+            this.dispose();
+            return; // ← stop, jangan lanjut ke mode tambah
+        }
+
+        // ── MODE TAMBAH ──
         PerangkatListrik perangkatBaru = null;
 
         if (jenis.equals("AC")) {
-            double cop = 3.0; 
+            double cop = 3.0;
             if (!txtCop.getText().isEmpty()) cop = Double.parseDouble(txtCop.getText());
-            perangkatBaru = new AC(lokasi, (int) daya, waktu, cop); 
+            perangkatBaru = new AC(lokasi, (int) daya, waktu, cop);
         } else if (jenis.equals("Lampu")) {
             perangkatBaru = new Lampu(lokasi, (int) daya, waktu);
         } else if (jenis.equals("Televisi")) {
@@ -404,13 +421,11 @@ public class TambahPerangkat extends javax.swing.JFrame {
         }
 
         if (perangkatBaru != null) {
-            // SUNTIKKAN TANGGAL KE OBJEK
             perangkatBaru.setTanggalPemasangan(tanggalInput);
-            
             sistem.tambahPerangkat(perangkatBaru);
-            parent.tampilkanData();
-            
+
             JOptionPane.showMessageDialog(this, "Perangkat berhasil ditambahkan!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            parent.refreshData(); // ← ganti dari tampilkanData()
             this.dispose();
         }
 
