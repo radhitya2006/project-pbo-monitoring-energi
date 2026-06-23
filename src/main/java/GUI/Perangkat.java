@@ -37,7 +37,8 @@ public class Perangkat extends javax.swing.JFrame {
         panelContainer.setLayout(new java.awt.GridLayout(0, 2, 15, 15));
         
         // Panggil method untuk me-refresh data card dari sistem
-        tampilkanData();
+        initFilter();
+        filterData();
     }
 
     /**
@@ -47,14 +48,15 @@ public class Perangkat extends javax.swing.JFrame {
         initComponents();
         sistem = new SistemMonitoring(); // Fallback jika dijalankan langsung (Shift+F6)
         panelContainer.setLayout(new java.awt.GridLayout(0, 2, 15, 15));
-        tampilkanData();
+        initFilter();
+        filterData();
     }
 
     Perangkat(SistemMonitoring sistem) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     
-    
+   
     public void tampilkanData() {
         // 1. Bersihkan layar sebelum diisi ulang
         panelContainer.removeAll(); 
@@ -114,6 +116,128 @@ public class Perangkat extends javax.swing.JFrame {
         panelContainer.revalidate();
         panelContainer.repaint();
     }
+    
+    private void filterData() {
+    panelContainer.removeAll();
+
+    // Ambil keyword, abaikan placeholder
+    String raw      = txtSearch.getText();
+    String keyword  = raw.equals("Cari Perangkat....") ? "" : raw.toLowerCase().trim();
+
+    String filterJenis  = comboJenis.getSelectedItem().toString();
+    String filterStatus = comboStatus.getSelectedItem().toString();
+
+    for (com.mycompany.monitoringenergirumah.Model.PerangkatListrik p : sistem.getPerangkatList()) {
+
+        String jenis  = p.getClass().getSimpleName();
+        String status = p.getStatus();
+
+        // Filter 1: keyword nama/lokasi atau jenis
+        boolean matchKeyword = keyword.isEmpty()
+                || p.getNama().toLowerCase().contains(keyword)
+                || jenis.toLowerCase().contains(keyword);
+
+        // Filter 2: jenis perangkat
+        boolean matchJenis = filterJenis.equals("Semua Jenis")
+                || jenis.equalsIgnoreCase(filterJenis);
+
+        // Filter 3: status perangkat
+        boolean matchStatus;
+        switch (filterStatus) {
+            case "Perangkat Aktif":
+                matchStatus = status.equalsIgnoreCase("Aktif");
+                break;
+            case "Arsip & Riwayat":
+                matchStatus = status.equalsIgnoreCase("Riwayat")
+                           || status.equalsIgnoreCase("Arsip");
+                break;
+            default: // "Semua Status"
+                matchStatus = true;
+                break;
+        }
+
+        if (matchKeyword && matchJenis && matchStatus) {
+            String lokasi   = p.getNama();
+            int daya        = p.getDaya();
+            double energi   = p.hitungEnergi();
+            double biaya    = sistem.hitungBiayaPerangkat(p);
+
+            String estimasi = "Belum ada data";
+            if (p.getEstimasiRusak() != null) {
+                java.time.format.DateTimeFormatter fmt =
+                    java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy");
+                estimasi = p.getEstimasiRusak().format(fmt);
+            }
+
+            CardPerangkat card = new CardPerangkat(
+                lokasi, jenis, daya, energi, biaya, estimasi, status
+            );
+
+            card.getBtnEdit().addActionListener(e ->
+                javax.swing.JOptionPane.showMessageDialog(this, "Edit: " + jenis + " - " + lokasi)
+            );
+
+            card.getBtnNonaktif().addActionListener(e -> {
+                int confirm = javax.swing.JOptionPane.showConfirmDialog(this,
+                    "Yakin ingin mempensiunkan " + jenis + " di " + lokasi + "?\n",
+                    "Konfirmasi Nonaktif",
+                    javax.swing.JOptionPane.YES_NO_OPTION);
+                if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+                    p.setStatus("Riwayat");
+                    filterData();
+                }
+            });
+
+            panelContainer.add(card);
+        }
+    }
+
+    panelContainer.revalidate();
+    panelContainer.repaint();
+}
+    
+    private void initFilter() {
+    // Reset model comboJenis (hapus tab \t di "Televisi")
+    comboJenis.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{
+        "Semua Jenis", "AC", "Lampu", "Televisi"
+    }));
+
+    // Reset model comboStatus (tambah "Semua Status", perbaiki typo)
+    comboStatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{
+        "Semua Status", "Perangkat Aktif", "Nonaktif & Rusak"
+    }));
+
+    // Tangani placeholder txtSearch
+    txtSearch.addFocusListener(new java.awt.event.FocusAdapter() {
+        @Override
+        public void focusGained(java.awt.event.FocusEvent e) {
+            if (txtSearch.getText().equals("Cari Perangkat....")) {
+                txtSearch.setText("");
+                txtSearch.setForeground(java.awt.Color.BLACK);
+            }
+        }
+        @Override
+        public void focusLost(java.awt.event.FocusEvent e) {
+            if (txtSearch.getText().isBlank()) {
+                txtSearch.setText("Cari Perangkat....");
+                txtSearch.setForeground(new java.awt.Color(204, 204, 204));
+            }
+        }
+    });
+
+    // Listener txtSearch
+    txtSearch.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+        @Override public void insertUpdate(javax.swing.event.DocumentEvent e)  { filterData(); }
+        @Override public void removeUpdate(javax.swing.event.DocumentEvent e)  { filterData(); }
+        @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { filterData(); }
+    });
+
+    // Listener kedua ComboBox
+    comboJenis.addActionListener(e -> filterData());
+    comboStatus.addActionListener(e -> filterData());
+}
+    
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -132,6 +256,7 @@ public class Perangkat extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         comboJenis = new javax.swing.JComboBox<>();
         txtSearch = new javax.swing.JTextField();
+        comboStatus = new javax.swing.JComboBox<>();
         jScrollPane1 = new javax.swing.JScrollPane();
         jPanel4 = new javax.swing.JPanel();
         panelContainer = new javax.swing.JPanel();
@@ -172,7 +297,9 @@ public class Perangkat extends javax.swing.JFrame {
         comboJenis.setOpaque(true);
 
         txtSearch.setForeground(new java.awt.Color(204, 204, 204));
-        txtSearch.setText("Cari Perangkat....");
+        txtSearch.addActionListener(this::txtSearchActionPerformed);
+
+        comboStatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Semua Status", "Perangkat Aktif", "Arsip & Riwayar" }));
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -181,6 +308,8 @@ public class Perangkat extends javax.swing.JFrame {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(19, 19, 19)
                 .addComponent(comboJenis, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(comboStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(15, 15, 15))
@@ -191,7 +320,8 @@ public class Perangkat extends javax.swing.JFrame {
                 .addGap(14, 14, 14)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(comboJenis, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(comboStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(19, Short.MAX_VALUE))
         );
 
@@ -243,7 +373,7 @@ public class Perangkat extends javax.swing.JFrame {
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 1006, Short.MAX_VALUE)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -399,6 +529,10 @@ public class Perangkat extends javax.swing.JFrame {
         form.setVisible(true);
     }//GEN-LAST:event_btnTambahPerangkatActionPerformed
 
+    private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtSearchActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -428,6 +562,7 @@ public class Perangkat extends javax.swing.JFrame {
     private javax.swing.JButton btnBeranda;
     private javax.swing.JButton btnTambahPerangkat;
     private javax.swing.JComboBox<String> comboJenis;
+    private javax.swing.JComboBox<String> comboStatus;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
