@@ -5,6 +5,7 @@
 package GUI;
 
 import com.mycompany.monitoringenergirumah.Service.SistemMonitoring;
+import com.mycompany.monitoringenergirumah.Model.PerangkatListrik;
 import java.awt.Dimension;
 import javax.swing.JButton;
 
@@ -18,6 +19,7 @@ public class Perangkat extends javax.swing.JFrame {
 
     private SistemMonitoring sistem;
     private com.mycompany.monitoringenergirumah.Service.AuthService authService; 
+    private boolean isPlaceholderActive = true;
 
     
     public Perangkat(SistemMonitoring sistem, com.mycompany.monitoringenergirumah.Service.AuthService authService) {
@@ -97,12 +99,12 @@ public class Perangkat extends javax.swing.JFrame {
                 // 5. Aktifkan fungsi tombol Nonaktifkan (Fitur Dosen!)
                 card.getBtnNonaktif().addActionListener(e -> {
                     int confirm = javax.swing.JOptionPane.showConfirmDialog(this, 
-                        "Yakin ingin mempensiunkan " + jenis + " di " + lokasi + "?\nData akan dipindahkan ke halaman Laporan (Riwayat).", 
+                        "Yakin ingin mempensiunkan " + jenis + " di " + lokasi + "?", 
                         "Konfirmasi Nonaktif", 
                         javax.swing.JOptionPane.YES_NO_OPTION);
                         
                     if (confirm == javax.swing.JOptionPane.YES_OPTION) {
-                        p.setStatus("Riwayat"); // Ini dia keajaiban Soft Delete
+                        p.setStatus(PerangkatListrik.STATUS_NONAKTIF); // Ini dia keajaiban Soft Delete
                         tampilkanData();        // Refresh halaman agar card langsung lenyap
                     }
                 });
@@ -120,10 +122,7 @@ public class Perangkat extends javax.swing.JFrame {
     private void filterData() {
     panelContainer.removeAll();
 
-    // Ambil keyword, abaikan placeholder
-    String raw      = txtSearch.getText();
-    String keyword  = raw.equals("Cari Perangkat....") ? "" : raw.toLowerCase().trim();
-
+    String keyword      = isPlaceholderActive ? "" : txtSearch.getText().toLowerCase().trim();
     String filterJenis  = comboJenis.getSelectedItem().toString();
     String filterStatus = comboStatus.getSelectedItem().toString();
 
@@ -132,24 +131,25 @@ public class Perangkat extends javax.swing.JFrame {
         String jenis  = p.getClass().getSimpleName();
         String status = p.getStatus();
 
-        // Filter 1: keyword nama/lokasi atau jenis
+        // Filter keyword
         boolean matchKeyword = keyword.isEmpty()
                 || p.getNama().toLowerCase().contains(keyword)
                 || jenis.toLowerCase().contains(keyword);
 
-        // Filter 2: jenis perangkat
+        // Filter jenis
         boolean matchJenis = filterJenis.equals("Semua Jenis")
                 || jenis.equalsIgnoreCase(filterJenis);
 
-        // Filter 3: status perangkat
+        // Filter status — pakai konstanta
         boolean matchStatus;
         switch (filterStatus) {
             case "Perangkat Aktif":
-                matchStatus = status.equalsIgnoreCase("Aktif");
+                matchStatus = status.equals(PerangkatListrik.STATUS_AKTIF);
                 break;
-            case "Arsip & Riwayat":
-                matchStatus = status.equalsIgnoreCase("Riwayat")
-                           || status.equalsIgnoreCase("Arsip");
+            case "Nonaktif & Rusak":
+                matchStatus = status.equals(PerangkatListrik.STATUS_NONAKTIF)
+                           || status.equals(PerangkatListrik.STATUS_RUSAK)
+                           || status.equalsIgnoreCase("Riwayat"); // backward compat data lama
                 break;
             default: // "Semua Status"
                 matchStatus = true;
@@ -157,10 +157,10 @@ public class Perangkat extends javax.swing.JFrame {
         }
 
         if (matchKeyword && matchJenis && matchStatus) {
-            String lokasi   = p.getNama();
-            int daya        = p.getDaya();
-            double energi   = p.hitungEnergi();
-            double biaya    = sistem.hitungBiayaPerangkat(p);
+            String lokasi  = p.getNama();
+            int daya       = p.getDaya();
+            double energi  = p.hitungEnergi();
+            double biaya   = sistem.hitungBiayaPerangkat(p);
 
             String estimasi = "Belum ada data";
             if (p.getEstimasiRusak() != null) {
@@ -177,16 +177,30 @@ public class Perangkat extends javax.swing.JFrame {
                 javax.swing.JOptionPane.showMessageDialog(this, "Edit: " + jenis + " - " + lokasi)
             );
 
-            card.getBtnNonaktif().addActionListener(e -> {
-                int confirm = javax.swing.JOptionPane.showConfirmDialog(this,
-                    "Yakin ingin mempensiunkan " + jenis + " di " + lokasi + "?\n",
-                    "Konfirmasi Nonaktif",
-                    javax.swing.JOptionPane.YES_NO_OPTION);
-                if (confirm == javax.swing.JOptionPane.YES_OPTION) {
-                    p.setStatus("Riwayat");
-                    filterData();
-                }
-            });
+            // Tombol aksi berbeda sesuai status
+            if (status.equals(PerangkatListrik.STATUS_AKTIF)) {
+                card.getBtnNonaktif().addActionListener(e -> {
+                    int confirm = javax.swing.JOptionPane.showConfirmDialog(this,
+                        "Nonaktifkan " + jenis + " di " + lokasi + "?",
+                        "Konfirmasi Nonaktif",
+                        javax.swing.JOptionPane.YES_NO_OPTION);
+                    if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+                        p.setStatus(PerangkatListrik.STATUS_NONAKTIF); // ← pakai konstanta
+                        filterData();
+                    }
+                });
+            } else {
+                card.getBtnNonaktif().addActionListener(e -> {
+                    int confirm = javax.swing.JOptionPane.showConfirmDialog(this,
+                        "Aktifkan kembali " + jenis + " di " + lokasi + "?",
+                        "Konfirmasi Aktifkan",
+                        javax.swing.JOptionPane.YES_NO_OPTION);
+                    if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+                        p.setStatus(PerangkatListrik.STATUS_AKTIF); // ← pakai konstanta
+                        filterData();
+                    }
+                });
+            }
 
             panelContainer.add(card);
         }
@@ -202,7 +216,6 @@ public class Perangkat extends javax.swing.JFrame {
         "Semua Jenis", "AC", "Lampu", "Televisi"
     }));
 
-    // Reset model comboStatus (tambah "Semua Status", perbaiki typo)
     comboStatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{
         "Semua Status", "Perangkat Aktif", "Nonaktif & Rusak"
     }));
@@ -527,6 +540,7 @@ public class Perangkat extends javax.swing.JFrame {
 
         form.setLocationRelativeTo(this);
         form.setVisible(true);
+        filterData();
     }//GEN-LAST:event_btnTambahPerangkatActionPerformed
 
     private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed
