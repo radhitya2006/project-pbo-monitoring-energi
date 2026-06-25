@@ -16,11 +16,18 @@ public class User {
     private String email;
     private String password;
     
-    public User(String namaLengkap, String email, String password) {
-        this.id          = idCounter++;
+    public User(int id, String namaLengkap, String email, String password) {
+        this.id          = id;
         this.namaLengkap = namaLengkap;
         this.email       = email;
         this.password    = password;
+    }
+    
+    public User(String namaLengkap, String email, String password) {
+        this.id = idCounter++;
+        this.namaLengkap = namaLengkap;
+        this.email = email;
+        this.password = password;
     }
     
     public int getId() {

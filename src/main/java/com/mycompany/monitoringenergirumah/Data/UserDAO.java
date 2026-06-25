@@ -21,6 +21,7 @@ public class UserDAO {
         if (rs.next()) {
             System.out.println("User ditemukan: " + rs.getString("nama_lengkap"));
             return Optional.of(new User(
+                rs.getInt("id_user"),
                 rs.getString("nama_lengkap"),
                 rs.getString("email"),
                 rs.getString("password")

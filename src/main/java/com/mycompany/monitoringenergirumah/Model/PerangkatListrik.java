@@ -24,6 +24,7 @@ public abstract class PerangkatListrik {
     private LocalDate tanggalPemasangan;
     private String status; 
     private int batasUmurJam; 
+    private int id; 
 
     public PerangkatListrik(String lokasi, int daya, double lamaPemakaian) {
         this.lokasi = lokasi; // Ini akan diisi "Kamar", "Dapur", dll
@@ -119,6 +120,14 @@ public abstract class PerangkatListrik {
 
     public void setBatasUmurJam(int batasUmurJam) {
         this.batasUmurJam = batasUmurJam;
+    }
+    
+    public int getId() { 
+        return id; 
+    }
+    
+    public void setId(int id) { 
+        this.id = id; 
     }
 
     @Override

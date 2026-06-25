@@ -4,9 +4,11 @@
  */
 package GUI;
 
+import com.mycompany.monitoringenergirumah.Data.PerangkatDAO;
 import com.mycompany.monitoringenergirumah.Service.SistemMonitoring;
 import com.mycompany.monitoringenergirumah.Model.PerangkatListrik;
 import java.awt.Dimension;
+import java.util.List;
 import javax.swing.JButton;
 
 /**
@@ -120,89 +122,160 @@ public class Perangkat extends javax.swing.JFrame {
     }
     
     private void filterData() {
+
     panelContainer.removeAll();
 
-    String keyword      = isPlaceholderActive ? "" : txtSearch.getText().toLowerCase().trim();
-    String filterJenis  = comboJenis.getSelectedItem().toString();
-    String filterStatus = comboStatus.getSelectedItem().toString();
+    if (authService == null || authService.getCurrentUser() == null) {
+        panelContainer.revalidate();
+        panelContainer.repaint();
+        return;
+    }
 
-    for (com.mycompany.monitoringenergirumah.Model.PerangkatListrik p : sistem.getPerangkatList()) {
+    PerangkatDAO dao = new PerangkatDAO();
 
-        String jenis  = p.getClass().getSimpleName();
+    List<PerangkatListrik> daftarPerangkat =
+            dao.getPerangkatByUser(
+                    authService.getCurrentUser().getId()
+            );
+
+    String keyword =
+            isPlaceholderActive
+                    ? ""
+                    : txtSearch.getText().toLowerCase().trim();
+
+    String filterJenis =
+            comboJenis.getSelectedItem().toString();
+
+    String filterStatus =
+            comboStatus.getSelectedItem().toString();
+
+    for (PerangkatListrik p : daftarPerangkat) {
+
+        String jenis = p.getClass().getSimpleName();
         String status = p.getStatus();
 
-        // Filter keyword
-        boolean matchKeyword = keyword.isEmpty()
+        boolean matchKeyword =
+                keyword.isEmpty()
                 || p.getNama().toLowerCase().contains(keyword)
                 || jenis.toLowerCase().contains(keyword);
 
-        // Filter jenis
-        boolean matchJenis = filterJenis.equals("Semua Jenis")
+        boolean matchJenis =
+                filterJenis.equals("Semua Jenis")
                 || jenis.equalsIgnoreCase(filterJenis);
 
-        // Filter status — pakai konstanta
         boolean matchStatus;
+
         switch (filterStatus) {
+
             case "Perangkat Aktif":
-                matchStatus = status.equals(PerangkatListrik.STATUS_AKTIF);
+                matchStatus =
+                        status.equals(
+                                PerangkatListrik.STATUS_AKTIF
+                        );
                 break;
+
             case "Nonaktif & Rusak":
-                matchStatus = status.equals(PerangkatListrik.STATUS_NONAKTIF)
-                           || status.equals(PerangkatListrik.STATUS_RUSAK)
-                           || status.equalsIgnoreCase("Riwayat"); // backward compat data lama
+                matchStatus =
+                        status.equals(
+                                PerangkatListrik.STATUS_NONAKTIF
+                        )
+                        || status.equals(
+                                PerangkatListrik.STATUS_RUSAK
+                        );
                 break;
-            default: // "Semua Status"
+
+            default:
                 matchStatus = true;
                 break;
         }
 
         if (matchKeyword && matchJenis && matchStatus) {
-            String lokasi  = p.getNama();
-            int daya       = p.getDaya();
-            double energi  = p.hitungEnergi();
-            double biaya   = sistem.hitungBiayaPerangkat(p);
+
+            String lokasi = p.getNama();
+
+            int daya = p.getDaya();
+
+            double energi =
+                    p.hitungEnergi();
+
+            double biaya =
+                    sistem.hitungBiayaPerangkat(p);
 
             String estimasi = "Belum ada data";
+
             if (p.getEstimasiRusak() != null) {
+
                 java.time.format.DateTimeFormatter fmt =
-                    java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy");
-                estimasi = p.getEstimasiRusak().format(fmt);
+                        java.time.format.DateTimeFormatter.ofPattern(
+                                "dd MMM yyyy"
+                        );
+
+                estimasi =
+                        p.getEstimasiRusak().format(fmt);
             }
 
-            CardPerangkat card = new CardPerangkat(
-                lokasi, jenis, daya, energi, biaya, estimasi, status
-            );
+            CardPerangkat card =
+                    new CardPerangkat(
+                            lokasi,
+                            jenis,
+                            daya,
+                            energi,
+                            biaya,
+                            estimasi,
+                            status
+                    );
 
             card.getBtnEdit().addActionListener(e -> {
-                TambahPerangkat formEdit = new TambahPerangkat(this, sistem, p); // ← pakai constructor ke-2
+
+                TambahPerangkat formEdit =
+                        new TambahPerangkat(
+                                this,
+                                sistem,
+                                p
+                        );
+
                 formEdit.setLocationRelativeTo(this);
                 formEdit.setVisible(true);
             });
 
-            // Tombol aksi berbeda sesuai status
-            if (status.equals(PerangkatListrik.STATUS_AKTIF)) {
-                card.getBtnNonaktif().addActionListener(e -> {
-                    int confirm = javax.swing.JOptionPane.showConfirmDialog(this,
-                        "Nonaktifkan " + jenis + " di " + lokasi + "?",
-                        "Konfirmasi Nonaktif",
-                        javax.swing.JOptionPane.YES_NO_OPTION);
-                    if (confirm == javax.swing.JOptionPane.YES_OPTION) {
-                        p.setStatus(PerangkatListrik.STATUS_NONAKTIF); // ← pakai konstanta
-                        filterData();
+            card.getBtnNonaktif().addActionListener(e -> {
+
+                int confirm =
+                        javax.swing.JOptionPane.showConfirmDialog(
+                                this,
+                                "Ubah status perangkat?",
+                                "Konfirmasi",
+                                javax.swing.JOptionPane.YES_NO_OPTION
+                        );
+
+                if (confirm ==
+                        javax.swing.JOptionPane.YES_OPTION) {
+
+                    PerangkatDAO perangkatDAO =
+                            new PerangkatDAO();
+
+                    String statusBaru;
+
+                    if (status.equals(
+                            PerangkatListrik.STATUS_AKTIF)) {
+
+                        statusBaru =
+                                PerangkatListrik.STATUS_NONAKTIF;
+
+                    } else {
+
+                        statusBaru =
+                                PerangkatListrik.STATUS_AKTIF;
                     }
-                });
-            } else {
-                card.getBtnNonaktif().addActionListener(e -> {
-                    int confirm = javax.swing.JOptionPane.showConfirmDialog(this,
-                        "Aktifkan kembali " + jenis + " di " + lokasi + "?",
-                        "Konfirmasi Aktifkan",
-                        javax.swing.JOptionPane.YES_NO_OPTION);
-                    if (confirm == javax.swing.JOptionPane.YES_OPTION) {
-                        p.setStatus(PerangkatListrik.STATUS_AKTIF); // ← pakai konstanta
-                        filterData();
-                    }
-                });
-            }
+
+                    perangkatDAO.updateStatus(
+                            p.getId(),
+                            statusBaru
+                    );
+
+                    filterData();
+                }
+            });
 
             panelContainer.add(card);
         }
@@ -544,7 +617,7 @@ public class Perangkat extends javax.swing.JFrame {
 
     private void btnTambahPerangkatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahPerangkatActionPerformed
         TambahPerangkat form =
-            new TambahPerangkat(this, sistem);
+            new TambahPerangkat(this, sistem, authService);
 
         form.setLocationRelativeTo(this);
         form.setVisible(true);

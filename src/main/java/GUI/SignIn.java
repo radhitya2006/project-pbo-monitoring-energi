@@ -238,6 +238,11 @@ public class SignIn extends javax.swing.JFrame {
             passField.setText("");
             passField.requestFocus();
         }
+        
+        System.out.println(
+            "ID USER LOGIN = " +
+            authService.getCurrentUser().getId()
+        );
     }
     
     /**
