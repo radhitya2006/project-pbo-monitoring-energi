@@ -444,25 +444,26 @@ public class TambahPerangkat extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
-            String jenis = pilihJenis.getSelectedItem().toString();
-            if (jenis.equals("Pilih Jenis Perangkat")) {
-                JOptionPane.showMessageDialog(this, "Silakan pilih jenis perangkat!", 
+        // ── Validasi input umum ──
+        String jenis = pilihJenis.getSelectedItem().toString();
+        if (jenis.equals("Pilih Jenis Perangkat")) {
+            JOptionPane.showMessageDialog(this, "Silakan pilih jenis perangkat!",
                 "Peringatan", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
+            return;
+        }
 
-            String lokasi = comboboxLokasi.getSelectedItem().toString();
-            if (lokasi.equals("Masukkan Lokasi")) {
-                JOptionPane.showMessageDialog(this, "Silakan pilih lokasi pemasangan!", 
+        String lokasi = comboboxLokasi.getSelectedItem().toString();
+        if (lokasi.equals("Masukkan Lokasi")) {
+            JOptionPane.showMessageDialog(this, "Silakan pilih lokasi pemasangan!",
                 "Peringatan", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
+            return;
+        }
 
-            java.util.Date tanggalPilih = jDateChooser1.getDate();
-            if (tanggalPilih == null) {
-            JOptionPane.showMessageDialog(this, "Silakan pilih tanggal pemasangan!", 
+        java.util.Date tanggalPilih = jDateChooser1.getDate();
+        if (tanggalPilih == null) {
+            JOptionPane.showMessageDialog(this, "Silakan pilih tanggal pemasangan!",
                 "Peringatan", JOptionPane.WARNING_MESSAGE);
-                return;
+            return;
         }
 
         java.time.LocalDate tanggalInput = tanggalPilih.toInstant()
@@ -471,42 +472,64 @@ public class TambahPerangkat extends javax.swing.JFrame {
         int daya     = Integer.parseInt(txtDaya.getText().trim());
         double waktu = Double.parseDouble(txtLamaPemakaian.getText().trim());
 
-        // ── MODE EDIT ──
+        PerangkatDAO dao = new PerangkatDAO();
+
+        // ─────────────────────────────────────────
+        // MODE EDIT
+        // ─────────────────────────────────────────
         if (perangkatEdit != null) {
+            // Update object di RAM
             perangkatEdit.setNama(lokasi);
             perangkatEdit.setDaya(daya);
             perangkatEdit.setLamaPemakaian(waktu);
             perangkatEdit.setTanggalPemasangan(tanggalInput);
 
-            if (perangkatEdit instanceof AC && !txtCop.getText().isEmpty()) {
-                ((AC) perangkatEdit).setCop(Double.parseDouble(txtCop.getText()));
+            if (perangkatEdit instanceof AC && !txtCop.getText().trim().isEmpty()) {
+                ((AC) perangkatEdit).setCop(
+                    Double.parseDouble(txtCop.getText().trim()));
             }
             if (perangkatEdit instanceof Televisi) {
-                if (!txtDayaStandby.getText().isEmpty()) {
+                if (!txtDayaStandby.getText().trim().isEmpty()) {
                     ((Televisi) perangkatEdit).setDayaStandby(
-                        Integer.parseInt(txtDayaStandby.getText()));
+                        Integer.parseInt(txtDayaStandby.getText().trim()));
                 }
-                if (!txtPersentaseStandby.getText().isEmpty()) {
-                    double persen = Double.parseDouble(txtPersentaseStandby.getText());
-                    ((Televisi) perangkatEdit).setPersentaseStandby(persen);
+                if (!txtPersentaseStandby.getText().trim().isEmpty()) {
+                    ((Televisi) perangkatEdit).setPersentaseStandby(
+                        Double.parseDouble(txtPersentaseStandby.getText().trim()));
                 }
             }
 
-            JOptionPane.showMessageDialog(this, "Perangkat berhasil diperbarui!", 
-                "Sukses", JOptionPane.INFORMATION_MESSAGE);
-            parent.refreshData();
-            this.dispose();
+            // ← Simpan ke DB
+            boolean berhasil = dao.updatePerangkat(perangkatEdit.getId(), perangkatEdit);
+
+            if (berhasil) {
+                JOptionPane.showMessageDialog(this, "Perangkat berhasil diperbarui!",
+                    "Sukses", JOptionPane.INFORMATION_MESSAGE);
+                parent.refreshData();
+                this.dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Gagal menyimpan perubahan ke database!",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            return; // ← stop, jangan lanjut ke mode tambah
+        }
+
+        // ─────────────────────────────────────────
+        // MODE TAMBAH
+        // ─────────────────────────────────────────
+        if (authService == null || authService.getCurrentUser() == null) {
+            JOptionPane.showMessageDialog(this, "Sesi login tidak ditemukan!",
+                "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // ── MODE TAMBAH ──
         PerangkatListrik perangkatBaru = null;
 
         switch (jenis) {
             case "AC": {
                 double cop = 3.0;
-                if (!txtCop.getText().isEmpty()) {
-                    cop = Double.parseDouble(txtCop.getText());
+                if (!txtCop.getText().trim().isEmpty()) {
+                    cop = Double.parseDouble(txtCop.getText().trim());
                 }
                 perangkatBaru = new AC(lokasi, daya, waktu, cop);
                 break;
@@ -516,51 +539,41 @@ public class TambahPerangkat extends javax.swing.JFrame {
                 break;
             }
             case "Televisi": {
-                int dayaStandby = 2;        // default
-                double persen   = 0.1;      // default
-
-                if (!txtDayaStandby.getText().isEmpty()) {
-                    dayaStandby = Integer.parseInt(txtDayaStandby.getText().trim());
-                }
-                if (!txtPersentaseStandby.getText().isEmpty()) {
-                    persen = Double.parseDouble(txtPersentaseStandby.getText().trim());
-                }
-                perangkatBaru = new Televisi(lokasi, daya, waktu, dayaStandby, persen);
+                int ds = txtDayaStandby.getText().trim().isEmpty() ? 2
+                         : Integer.parseInt(txtDayaStandby.getText().trim());
+                double ps = txtPersentaseStandby.getText().trim().isEmpty() ? 0.1
+                         : Double.parseDouble(txtPersentaseStandby.getText().trim());
+                perangkatBaru = new Televisi(lokasi, daya, waktu, ds, ps);
                 break;
             }
         }
 
         if (perangkatBaru != null) {
             perangkatBaru.setTanggalPemasangan(tanggalInput);
-            PerangkatDAO dao = new PerangkatDAO();
+            perangkatBaru.setStatus(PerangkatListrik.STATUS_AKTIF);
 
+            // ← Simpan ke DB
             int idUser = authService.getCurrentUser().getId();
+            boolean berhasil = dao.tambahPerangkat(perangkatBaru, idUser);
 
-            boolean berhasil =
-                dao.tambahPerangkat(perangkatBaru, idUser);
-
-        if (!berhasil) {
-            JOptionPane.showMessageDialog(
-                this,
-                "Gagal menyimpan ke database!"
-            );
-            return;
-        }
-            sistem.tambahPerangkat(perangkatBaru);
-
-            JOptionPane.showMessageDialog(this, "Perangkat berhasil ditambahkan!", 
-                "Sukses", JOptionPane.INFORMATION_MESSAGE);
-            parent.refreshData();
-            this.dispose();
+            if (berhasil) {
+                JOptionPane.showMessageDialog(this, "Perangkat berhasil ditambahkan!",
+                    "Sukses", JOptionPane.INFORMATION_MESSAGE);
+                parent.refreshData(); // ← load ulang dari DB otomatis
+                this.dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Gagal menyimpan ke database!",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
 
     } catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(this, 
-            "Daya, Waktu, COP, dan Daya Standby harus berupa angka!", 
+        JOptionPane.showMessageDialog(this,
+            "Daya, Waktu, COP, dan Daya Standby harus berupa angka!",
             "Error Input", JOptionPane.ERROR_MESSAGE);
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, 
-            "Terjadi kesalahan: " + e.getMessage(), 
+        JOptionPane.showMessageDialog(this,
+            "Terjadi kesalahan: " + e.getMessage(),
             "Error", JOptionPane.ERROR_MESSAGE);
     }
         
