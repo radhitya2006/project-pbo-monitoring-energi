@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package GUI;
 
 import com.mycompany.monitoringenergirumah.Service.AuthService;
@@ -20,203 +16,201 @@ import org.jfree.data.general.DefaultPieDataset;
 import java.awt.*;
 import java.util.Map;
 
-
-/**
- *
- * @author USER
- */
 public class Dashboard extends javax.swing.JFrame {
-    
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Dashboard.class.getName());
 
+    private static final java.util.logging.Logger logger =
+            java.util.logging.Logger.getLogger(Dashboard.class.getName());
+
+    // ── Fields — dideklarasikan SEKALI saja ──
     private AuthService authService;
     private SistemMonitoring sistem;
     private ChartPanel lineChartPanel;
     private ChartPanel donutChartPanel;
-    private RiwayatDAO riwayatDAO = new RiwayatDAO();
+    private final RiwayatDAO riwayatDAO = new RiwayatDAO();
+    // panelLineChartArea, panelDonutChartArea, lblNilai*
+    // sudah ada di Variables declaration (GEN block bawah)
 
-public Dashboard(AuthService authService, SistemMonitoring sistem) {
-    this.authService = authService;
-    this.sistem = sistem;
-    initComponents();
+    // ── Constructor utama ──
+    public Dashboard(AuthService authService, SistemMonitoring sistem) {
+        this.authService = authService;
+        this.sistem = sistem;
+        initComponents();
 
-    if (authService.getCurrentUser() != null) {
-        lblUser.setText(authService.getCurrentUser().getNamaLengkap());
-        lblUser2.setText(authService.getCurrentUser().getNamaLengkap());
+        if (authService != null && authService.getCurrentUser() != null) {
+            lblUser.setText(authService.getCurrentUser().getNamaLengkap());
+            lblUser2.setText(authService.getCurrentUser().getNamaLengkap());
+        }
+
+        initLogic();
     }
 
-    initLogic(); // ← tambahkan
-}
-
-private void initLogic() {
-    loadStatistikKartu();
-    initLineChart(7);   // default 7 hari
-    initDonutChart();
-
-    // Filter dropdown
-    jComboBox1.addActionListener(e -> {
-        String pilihan = jComboBox1.getSelectedItem().toString();
-        int hari;
-        switch (pilihan) {
-            case "14 Hari Terakhir": hari = 14; break;
-            case "21 Hari Terakhir": hari = 21; break;
-            case "30 Hari Terakhir": hari = 30; break;
-            default: hari = 7;
-        }
-        initLineChart(hari);
-    });
-}
-
-// ── 4 Kartu Statistik ──
-private void loadStatistikKartu() {
-    if (authService == null || authService.getCurrentUser() == null) return;
-    int idUser = authService.getCurrentUser().getId();
-
-    double hariIni   = riwayatDAO.getTotalKonsumsiHariIni(idUser);
-    double bulanIni  = riwayatDAO.getTotalKonsumsiUserBulanIni(idUser);
-    double rataRata  = riwayatDAO.getRataRataHarian(idUser);
-    double biaya     = riwayatDAO.getTotalBiayaBulanIni(idUser);
-
-    lblNilaiHariIni.setText(String.format("%.1f kWh", hariIni));
-    lblNilaiTotalBulan.setText(String.format("%.1f kWh", bulanIni));
-    lblNilaiRataRata.setText(String.format("%.1f kWh", rataRata));
-    lblNilaiBiaya.setText(String.format("Rp %,.0f", biaya));
-}
-
-// ── Line Chart ──
-private void initLineChart(int jumlahHari) {
-    if (authService == null || authService.getCurrentUser() == null) return;
-    int idUser = authService.getCurrentUser().getId();
-
-    Map<String, Double> data = riwayatDAO.getKonsumsiHarian(idUser, jumlahHari);
-
-    XYSeries series = new XYSeries("kWh");
-    String[] labels = new String[data.size()];
-    int i = 0;
-    for (Map.Entry<String, Double> entry : data.entrySet()) {
-        series.add(i, entry.getValue());
-        // Format tanggal: "2026-06-20" → "20 Jun"
-        try {
-            java.time.LocalDate ld = java.time.LocalDate.parse(entry.getKey());
-            labels[i] = ld.format(java.time.format.DateTimeFormatter.ofPattern("d MMM",
-                new java.util.Locale("id", "ID")));
-        } catch (Exception ex) {
-            labels[i] = entry.getKey();
-        }
-        i++;
-    }
-
-    XYSeriesCollection dataset = new XYSeriesCollection(series);
-    JFreeChart chart = ChartFactory.createXYLineChart(
-        null, null, null, dataset, PlotOrientation.VERTICAL, false, true, false
-    );
-
-    XYPlot plot = chart.getXYPlot();
-    plot.setBackgroundPaint(Color.WHITE);
-    plot.setOutlineVisible(false);
-    plot.setDomainGridlinePaint(new Color(230, 230, 230));
-    plot.setRangeGridlinePaint(new Color(230, 230, 230));
-
-    XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-    renderer.setSeriesPaint(0, new Color(0, 188, 212));
-    renderer.setSeriesStroke(0, new BasicStroke(2.5f,
-        BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-    renderer.setSeriesShapesVisible(0, true);
-    renderer.setSeriesShape(0, new java.awt.geom.Ellipse2D.Double(-4, -4, 8, 8));
-    renderer.setSeriesFillPaint(0, new Color(0, 188, 212));
-    renderer.setUseFillPaint(true);
-    plot.setRenderer(renderer);
-
-    // Label tanggal sumbu X
-    final String[] finalLabels = labels;
-    org.jfree.chart.axis.NumberAxis xAxis =
-        (org.jfree.chart.axis.NumberAxis) plot.getDomainAxis();
-    xAxis.setAxisLineVisible(false);
-    xAxis.setTickMarksVisible(false);
-    xAxis.setNumberFormatOverride(new java.text.NumberFormat() {
-        @Override
-        public StringBuffer format(double n, StringBuffer b, java.text.FieldPosition p) {
-            int idx = (int) Math.round(n);
-            if (idx >= 0 && idx < finalLabels.length) b.append(finalLabels[idx]);
-            return b;
-        }
-        @Override
-        public StringBuffer format(long n, StringBuffer b, java.text.FieldPosition p) { return b; }
-        @Override
-        public Number parse(String s, java.text.ParsePosition p) { return null; }
-    });
-
-    org.jfree.chart.axis.NumberAxis yAxis =
-        (org.jfree.chart.axis.NumberAxis) plot.getRangeAxis();
-    yAxis.setAxisLineVisible(false);
-    yAxis.setTickMarksVisible(false);
-
-    chart.setBackgroundPaint(Color.WHITE);
-    chart.setBorderVisible(false);
-
-    // Ganti chart yang lama
-    panelLineChartArea.removeAll();
-    lineChartPanel = new ChartPanel(chart);
-    lineChartPanel.setBackground(Color.WHITE);
-    lineChartPanel.setPopupMenu(null);
-    panelLineChartArea.setLayout(new BorderLayout());
-    panelLineChartArea.add(lineChartPanel, BorderLayout.CENTER);
-    panelLineChartArea.revalidate();
-    panelLineChartArea.repaint();
-}
-
-// ── Donut Chart ──
-private void initDonutChart() {
-    if (authService == null || authService.getCurrentUser() == null) return;
-    int idUser = authService.getCurrentUser().getId();
-
-    Map<String, Double> distribusi = riwayatDAO.getDistribusiByJenis(idUser);
-
-    DefaultPieDataset dataset = new DefaultPieDataset();
-    distribusi.forEach(dataset::setValue);
-
-    // Jika tidak ada data, tampilkan dummy
-    if (dataset.getItemCount() == 0) {
-        dataset.setValue("Belum ada data", 1.0);
-    }
-
-    JFreeChart chart = ChartFactory.createRingChart(
-        null, dataset, true, true, false
-    );
-
-    RingPlot plot = (RingPlot) chart.getPlot();
-    plot.setBackgroundPaint(Color.WHITE);
-    plot.setOutlineVisible(false);
-    plot.setSectionDepth(0.38);
-    plot.setSeparatorsVisible(false);
-    plot.setLabelGenerator(null);
-    plot.setSectionPaint("Lampu",    new Color(255, 193,   7));
-    plot.setSectionPaint("AC",       new Color(33,  150, 243));
-    plot.setSectionPaint("Televisi", new Color(76,  175,  80));
-    plot.setShadowPaint(null);
-    plot.setStartAngle(90);
-
-    org.jfree.chart.title.LegendTitle legend = chart.getLegend();
-    legend.setPosition(org.jfree.chart.ui.RectangleEdge.BOTTOM);
-    legend.setBackgroundPaint(Color.WHITE);
-    legend.setFrame(new org.jfree.chart.block.BlockBorder(Color.WHITE));
-    legend.setItemFont(new Font("SansSerif", Font.PLAIN, 12));
-
-    chart.setBackgroundPaint(Color.WHITE);
-    chart.setBorderVisible(false);
-
-    panelDonutChartArea.removeAll();
-    donutChartPanel = new ChartPanel(chart);
-    donutChartPanel.setBackground(Color.WHITE);
-    donutChartPanel.setPopupMenu(null);
-    panelDonutChartArea.setLayout(new BorderLayout());
-    panelDonutChartArea.add(donutChartPanel, BorderLayout.CENTER);
-    panelDonutChartArea.revalidate();
-    panelDonutChartArea.repaint();
-}
     public Dashboard() {
         initComponents();
     }
+
+    // ── initLogic ──
+    private void initLogic() {
+        // Panel sudah ada di designer, cukup set BorderLayout
+        panelLineChartArea.setLayout(new BorderLayout());
+        panelDonutChartArea.setLayout(new BorderLayout());
+
+        loadStatistikKartu();
+        initLineChart(7);
+        initDonutChart();
+    }
+
+    // ── 4 Kartu Statistik ──
+    private void loadStatistikKartu() {
+        if (authService == null || authService.getCurrentUser() == null) return;
+        int idUser = authService.getCurrentUser().getId();
+
+        double hariIni  = riwayatDAO.getTotalKonsumsiHariIni(idUser);
+        double bulanIni = riwayatDAO.getTotalKonsumsiUserBulanIni(idUser);
+        double rataRata = riwayatDAO.getRataRataHarian(idUser);
+        double biaya    = riwayatDAO.getTotalBiayaBulanIni(idUser);
+
+        lblNilaiHariIni.setText(String.format("%.1f kWh", hariIni));
+        lblNilaiTotalBulan.setText(String.format("%.1f kWh", bulanIni));
+        lblNilaiRataRata.setText(String.format("%.1f kWh", rataRata));
+        lblNilaiBiaya.setText(String.format("Rp %,.0f", biaya));
+    }
+
+    // ── Line Chart ──
+    private void initLineChart(int jumlahHari) {
+        if (authService == null || authService.getCurrentUser() == null) return;
+        int idUser = authService.getCurrentUser().getId();
+
+        Map<String, Double> data = riwayatDAO.getKonsumsiHarian(idUser, jumlahHari);
+
+        XYSeries series = new XYSeries("kWh");
+        String[] labels = new String[data.isEmpty() ? 1 : data.size()];
+
+        if (data.isEmpty()) {
+            series.add(0, 0);
+            labels[0] = "-";
+        } else {
+            int i = 0;
+            for (Map.Entry<String, Double> entry : data.entrySet()) {
+                series.add(i, entry.getValue());
+                try {
+                    java.time.LocalDate ld = java.time.LocalDate.parse(entry.getKey());
+                    labels[i] = ld.format(java.time.format.DateTimeFormatter.ofPattern(
+                            "d MMM", new java.util.Locale("id", "ID")));
+                } catch (Exception ex) {
+                    labels[i] = entry.getKey();
+                }
+                i++;
+            }
+        }
+
+        XYSeriesCollection dataset = new XYSeriesCollection(series);
+        JFreeChart chart = ChartFactory.createXYLineChart(
+                null, null, null, dataset,
+                PlotOrientation.VERTICAL, false, true, false);
+
+        XYPlot plot = chart.getXYPlot();
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setOutlineVisible(false);
+        plot.setDomainGridlinePaint(new Color(230, 230, 230));
+        plot.setRangeGridlinePaint(new Color(230, 230, 230));
+
+        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+        renderer.setSeriesPaint(0, new Color(0, 188, 212));
+        renderer.setSeriesStroke(0, new BasicStroke(2.5f,
+                BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        renderer.setSeriesShapesVisible(0, true);
+        renderer.setSeriesShape(0, new java.awt.geom.Ellipse2D.Double(-4, -4, 8, 8));
+        renderer.setSeriesFillPaint(0, new Color(0, 188, 212));
+        renderer.setUseFillPaint(true);
+        plot.setRenderer(renderer);
+
+        final String[] finalLabels = labels;
+        org.jfree.chart.axis.NumberAxis xAxis =
+                (org.jfree.chart.axis.NumberAxis) plot.getDomainAxis();
+        xAxis.setAxisLineVisible(false);
+        xAxis.setTickMarksVisible(false);
+        xAxis.setNumberFormatOverride(new java.text.NumberFormat() {
+            @Override
+            public StringBuffer format(double n, StringBuffer b, java.text.FieldPosition p) {
+                int idx = (int) Math.round(n);
+                if (idx >= 0 && idx < finalLabels.length) b.append(finalLabels[idx]);
+                return b;
+            }
+            @Override
+            public StringBuffer format(long n, StringBuffer b, java.text.FieldPosition p) { return b; }
+            @Override
+            public Number parse(String s, java.text.ParsePosition p) { return null; }
+        });
+
+        org.jfree.chart.axis.NumberAxis yAxis =
+                (org.jfree.chart.axis.NumberAxis) plot.getRangeAxis();
+        yAxis.setAxisLineVisible(false);
+        yAxis.setTickMarksVisible(false);
+
+        chart.setBackgroundPaint(Color.WHITE);
+        chart.setBorderVisible(false);
+
+        panelLineChartArea.removeAll();
+        lineChartPanel = new ChartPanel(chart);
+        lineChartPanel.setBackground(Color.WHITE);
+        lineChartPanel.setPopupMenu(null);
+        lineChartPanel.setPreferredSize(new Dimension(520, 175)); // ← tambahkan
+        lineChartPanel.setMaximumSize(new Dimension(520, 175));
+        panelLineChartArea.add(lineChartPanel, BorderLayout.CENTER);
+        panelLineChartArea.revalidate();
+        panelLineChartArea.repaint();
+    }
+
+    // ── Donut Chart ──
+    private void initDonutChart() {
+        if (authService == null || authService.getCurrentUser() == null) return;
+        int idUser = authService.getCurrentUser().getId();
+
+        Map<String, Double> distribusi = riwayatDAO.getDistribusiByJenis(idUser);
+
+        DefaultPieDataset dataset = new DefaultPieDataset();
+        if (distribusi.isEmpty()) {
+            dataset.setValue("Belum ada data", 1.0);
+        } else {
+            distribusi.forEach(dataset::setValue);
+        }
+
+        JFreeChart chart = ChartFactory.createRingChart(
+                null, dataset, true, true, false);
+
+        RingPlot plot = (RingPlot) chart.getPlot();
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setOutlineVisible(false);
+        plot.setSectionDepth(0.38);
+        plot.setSeparatorsVisible(false);
+        plot.setLabelGenerator(null);
+        plot.setSectionPaint("Lampu",    new Color(255, 193,   7));
+        plot.setSectionPaint("AC",       new Color(33,  150, 243));
+        plot.setSectionPaint("Televisi", new Color(76,  175,  80));
+        plot.setShadowPaint(null);
+        plot.setStartAngle(90);
+
+        org.jfree.chart.title.LegendTitle legend = chart.getLegend();
+        legend.setPosition(org.jfree.chart.ui.RectangleEdge.BOTTOM);
+        legend.setBackgroundPaint(Color.WHITE);
+        legend.setFrame(new org.jfree.chart.block.BlockBorder(Color.WHITE));
+        legend.setItemFont(new Font("SansSerif", Font.PLAIN, 11));
+
+        chart.setBackgroundPaint(Color.WHITE);
+        chart.setBorderVisible(false);
+
+        panelDonutChartArea.removeAll();
+        donutChartPanel = new ChartPanel(chart);
+        donutChartPanel.setBackground(Color.WHITE);
+        donutChartPanel.setPopupMenu(null);
+        donutChartPanel.setPreferredSize(new Dimension(250, 195)); // ← tambahkan
+        donutChartPanel.setMaximumSize(new Dimension(250, 195));
+        panelDonutChartArea.add(donutChartPanel, BorderLayout.CENTER);
+        panelDonutChartArea.revalidate();
+        panelDonutChartArea.repaint();
+    }
+    
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -784,7 +778,17 @@ private void initDonutChart() {
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
-        // TODO add your handling code here:
+        if (panelLineChartArea == null) return; // guard: belum siap
+
+        String pilihan = jComboBox1.getSelectedItem().toString();
+        int hari;
+        switch (pilihan) {
+            case "14 Hari Terakhir": hari = 14; break;
+            case "21 Hari Terakhir": hari = 21; break;
+            case "30 Hari Terakhir": hari = 30; break;
+            default: hari = 7;
+        }
+        initLineChart(hari);
     }//GEN-LAST:event_jComboBox1ActionPerformed
 
     private void btnLogOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogOutActionPerformed
