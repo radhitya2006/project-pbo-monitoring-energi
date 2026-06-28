@@ -1,41 +1,216 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package GUI;
 
 import com.mycompany.monitoringenergirumah.Service.AuthService;
 import com.mycompany.monitoringenergirumah.Service.SistemMonitoring;
+import com.mycompany.monitoringenergirumah.Data.RiwayatDAO;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.plot.RingPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.data.general.DefaultPieDataset;
+import java.awt.*;
+import java.util.Map;
 
-/**
- *
- * @author USER
- */
 public class Dashboard extends javax.swing.JFrame {
-    
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Dashboard.class.getName());
 
+    private static final java.util.logging.Logger logger =
+            java.util.logging.Logger.getLogger(Dashboard.class.getName());
+
+    // ── Fields — dideklarasikan SEKALI saja ──
     private AuthService authService;
     private SistemMonitoring sistem;
+    private ChartPanel lineChartPanel;
+    private ChartPanel donutChartPanel;
+    private final RiwayatDAO riwayatDAO = new RiwayatDAO();
+    // panelLineChartArea, panelDonutChartArea, lblNilai*
+    // sudah ada di Variables declaration (GEN block bawah)
 
-public Dashboard(AuthService authService, com.mycompany.monitoringenergirumah.Service.SistemMonitoring sistem) {
-    this.authService = authService;
-    this.sistem = sistem;
-    initComponents();
+    // ── Constructor utama ──
+    public Dashboard(AuthService authService, SistemMonitoring sistem) {
+        this.authService = authService;
+        this.sistem = sistem;
+        initComponents();
 
-    if (authService.getCurrentUser() != null) {
-        lblUser.setText(
-            authService.getCurrentUser().getNamaLengkap()
-        );
+        if (authService != null && authService.getCurrentUser() != null) {
+            lblUser.setText(authService.getCurrentUser().getNamaLengkap());
+            lblUser2.setText(authService.getCurrentUser().getNamaLengkap());
+        }
 
-        lblUser2.setText(
-            authService.getCurrentUser().getNamaLengkap()
-        );
+        initLogic();
     }
-}
+
     public Dashboard() {
         initComponents();
     }
+
+    // ── initLogic ──
+    private void initLogic() {
+        // Panel sudah ada di designer, cukup set BorderLayout
+        panelLineChartArea.setLayout(new BorderLayout());
+        panelDonutChartArea.setLayout(new BorderLayout());
+
+        loadStatistikKartu();
+        initLineChart(7);
+        initDonutChart();
+    }
+
+    // ── 4 Kartu Statistik ──
+    private void loadStatistikKartu() {
+        if (authService == null || authService.getCurrentUser() == null) return;
+        int idUser = authService.getCurrentUser().getId();
+
+        double hariIni  = riwayatDAO.getTotalKonsumsiHariIni(idUser);
+        double bulanIni = riwayatDAO.getTotalKonsumsiUserBulanIni(idUser);
+        double rataRata = riwayatDAO.getRataRataHarian(idUser);
+        double biaya    = riwayatDAO.getTotalBiayaBulanIni(idUser);
+
+        lblNilaiHariIni.setText(String.format("%.1f kWh", hariIni));
+        lblNilaiTotalBulan.setText(String.format("%.1f kWh", bulanIni));
+        lblNilaiRataRata.setText(String.format("%.1f kWh", rataRata));
+        lblNilaiBiaya.setText(String.format("Rp %,.0f", biaya));
+    }
+
+    // ── Line Chart ──
+    private void initLineChart(int jumlahHari) {
+        if (authService == null || authService.getCurrentUser() == null) return;
+        int idUser = authService.getCurrentUser().getId();
+
+        Map<String, Double> data = riwayatDAO.getKonsumsiHarian(idUser, jumlahHari);
+
+        XYSeries series = new XYSeries("kWh");
+        String[] labels = new String[data.isEmpty() ? 1 : data.size()];
+
+        if (data.isEmpty()) {
+            series.add(0, 0);
+            labels[0] = "-";
+        } else {
+            int i = 0;
+            for (Map.Entry<String, Double> entry : data.entrySet()) {
+                series.add(i, entry.getValue());
+                try {
+                    java.time.LocalDate ld = java.time.LocalDate.parse(entry.getKey());
+                    labels[i] = ld.format(java.time.format.DateTimeFormatter.ofPattern(
+                            "d MMM", new java.util.Locale("id", "ID")));
+                } catch (Exception ex) {
+                    labels[i] = entry.getKey();
+                }
+                i++;
+            }
+        }
+
+        XYSeriesCollection dataset = new XYSeriesCollection(series);
+        JFreeChart chart = ChartFactory.createXYLineChart(
+                null, null, null, dataset,
+                PlotOrientation.VERTICAL, false, true, false);
+
+        XYPlot plot = chart.getXYPlot();
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setOutlineVisible(false);
+        plot.setDomainGridlinePaint(new Color(230, 230, 230));
+        plot.setRangeGridlinePaint(new Color(230, 230, 230));
+
+        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+        renderer.setSeriesPaint(0, new Color(0, 188, 212));
+        renderer.setSeriesStroke(0, new BasicStroke(2.5f,
+                BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        renderer.setSeriesShapesVisible(0, true);
+        renderer.setSeriesShape(0, new java.awt.geom.Ellipse2D.Double(-4, -4, 8, 8));
+        renderer.setSeriesFillPaint(0, new Color(0, 188, 212));
+        renderer.setUseFillPaint(true);
+        plot.setRenderer(renderer);
+
+        final String[] finalLabels = labels;
+        org.jfree.chart.axis.NumberAxis xAxis =
+                (org.jfree.chart.axis.NumberAxis) plot.getDomainAxis();
+        xAxis.setAxisLineVisible(false);
+        xAxis.setTickMarksVisible(false);
+        xAxis.setNumberFormatOverride(new java.text.NumberFormat() {
+            @Override
+            public StringBuffer format(double n, StringBuffer b, java.text.FieldPosition p) {
+                int idx = (int) Math.round(n);
+                if (idx >= 0 && idx < finalLabels.length) b.append(finalLabels[idx]);
+                return b;
+            }
+            @Override
+            public StringBuffer format(long n, StringBuffer b, java.text.FieldPosition p) { return b; }
+            @Override
+            public Number parse(String s, java.text.ParsePosition p) { return null; }
+        });
+
+        org.jfree.chart.axis.NumberAxis yAxis =
+                (org.jfree.chart.axis.NumberAxis) plot.getRangeAxis();
+        yAxis.setAxisLineVisible(false);
+        yAxis.setTickMarksVisible(false);
+
+        chart.setBackgroundPaint(Color.WHITE);
+        chart.setBorderVisible(false);
+
+        panelLineChartArea.removeAll();
+        lineChartPanel = new ChartPanel(chart);
+        lineChartPanel.setBackground(Color.WHITE);
+        lineChartPanel.setPopupMenu(null);
+        lineChartPanel.setPreferredSize(new Dimension(520, 175)); // ← tambahkan
+        lineChartPanel.setMaximumSize(new Dimension(520, 175));
+        panelLineChartArea.add(lineChartPanel, BorderLayout.CENTER);
+        panelLineChartArea.revalidate();
+        panelLineChartArea.repaint();
+    }
+
+    // ── Donut Chart ──
+    private void initDonutChart() {
+        if (authService == null || authService.getCurrentUser() == null) return;
+        int idUser = authService.getCurrentUser().getId();
+
+        Map<String, Double> distribusi = riwayatDAO.getDistribusiByJenis(idUser);
+
+        DefaultPieDataset dataset = new DefaultPieDataset();
+        if (distribusi.isEmpty()) {
+            dataset.setValue("Belum ada data", 1.0);
+        } else {
+            distribusi.forEach(dataset::setValue);
+        }
+
+        JFreeChart chart = ChartFactory.createRingChart(
+                null, dataset, true, true, false);
+
+        RingPlot plot = (RingPlot) chart.getPlot();
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setOutlineVisible(false);
+        plot.setSectionDepth(0.38);
+        plot.setSeparatorsVisible(false);
+        plot.setLabelGenerator(null);
+        plot.setSectionPaint("Lampu",    new Color(255, 193,   7));
+        plot.setSectionPaint("AC",       new Color(33,  150, 243));
+        plot.setSectionPaint("Televisi", new Color(76,  175,  80));
+        plot.setShadowPaint(null);
+        plot.setStartAngle(90);
+
+        org.jfree.chart.title.LegendTitle legend = chart.getLegend();
+        legend.setPosition(org.jfree.chart.ui.RectangleEdge.BOTTOM);
+        legend.setBackgroundPaint(Color.WHITE);
+        legend.setFrame(new org.jfree.chart.block.BlockBorder(Color.WHITE));
+        legend.setItemFont(new Font("SansSerif", Font.PLAIN, 11));
+
+        chart.setBackgroundPaint(Color.WHITE);
+        chart.setBorderVisible(false);
+
+        panelDonutChartArea.removeAll();
+        donutChartPanel = new ChartPanel(chart);
+        donutChartPanel.setBackground(Color.WHITE);
+        donutChartPanel.setPopupMenu(null);
+        donutChartPanel.setPreferredSize(new Dimension(250, 195)); // ← tambahkan
+        donutChartPanel.setMaximumSize(new Dimension(250, 195));
+        panelDonutChartArea.add(donutChartPanel, BorderLayout.CENTER);
+        panelDonutChartArea.revalidate();
+        panelDonutChartArea.repaint();
+    }
+    
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -62,19 +237,25 @@ public Dashboard(AuthService authService, com.mycompany.monitoringenergirumah.Se
         jLabel5 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
+        lblNilaiHariIni = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
+        lblNilaiTotalBulan = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
+        lblNilaiRataRata = new javax.swing.JLabel();
         jPanel6 = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
+        lblNilaiBiaya = new javax.swing.JLabel();
         jPanel7 = new javax.swing.JPanel();
         jLabel12 = new javax.swing.JLabel();
         jComboBox1 = new javax.swing.JComboBox<>();
+        panelLineChartArea = new javax.swing.JPanel();
         jPanel8 = new javax.swing.JPanel();
         jLabel13 = new javax.swing.JLabel();
+        panelDonutChartArea = new javax.swing.JPanel();
         jPanel9 = new javax.swing.JPanel();
         jLabel14 = new javax.swing.JLabel();
         jButton7 = new javax.swing.JButton();
@@ -194,6 +375,9 @@ public Dashboard(AuthService authService, com.mycompany.monitoringenergirumah.Se
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel6.setText("Total Konsumsi Hari Ini");
 
+        lblNilaiHariIni.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        lblNilaiHariIni.setText("nilai kWh");
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -202,13 +386,19 @@ public Dashboard(AuthService authService, com.mycompany.monitoringenergirumah.Se
                 .addContainerGap()
                 .addComponent(jLabel6)
                 .addContainerGap(92, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lblNilaiHariIni, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel6)
-                .addContainerGap(78, Short.MAX_VALUE))
+                .addGap(27, 27, 27)
+                .addComponent(lblNilaiHariIni)
+                .addContainerGap(35, Short.MAX_VALUE))
         );
 
         jPanel4.setBackground(new java.awt.Color(255, 255, 255));
@@ -217,21 +407,31 @@ public Dashboard(AuthService authService, com.mycompany.monitoringenergirumah.Se
         jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel7.setText("Total Konsumsi Bulan Ini");
 
+        lblNilaiTotalBulan.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        lblNilaiTotalBulan.setText("nilai kWh");
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel7)
-                .addContainerGap(109, Short.MAX_VALUE))
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel7))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(73, 73, 73)
+                        .addComponent(lblNilaiTotalBulan)))
+                .addContainerGap(97, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel7)
-                .addContainerGap(78, Short.MAX_VALUE))
+                .addGap(28, 28, 28)
+                .addComponent(lblNilaiTotalBulan)
+                .addContainerGap(34, Short.MAX_VALUE))
         );
 
         jPanel5.setBackground(new java.awt.Color(255, 255, 255));
@@ -243,6 +443,9 @@ public Dashboard(AuthService authService, com.mycompany.monitoringenergirumah.Se
         jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel10.setText("Dalam 30 Hari Terakhir");
 
+        lblNilaiRataRata.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        lblNilaiRataRata.setText("nilai kWh");
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
@@ -251,7 +454,8 @@ public Dashboard(AuthService authService, com.mycompany.monitoringenergirumah.Se
                 .addContainerGap()
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel8)
-                    .addComponent(jLabel10))
+                    .addComponent(jLabel10)
+                    .addComponent(lblNilaiRataRata))
                 .addContainerGap(92, Short.MAX_VALUE))
         );
         jPanel5Layout.setVerticalGroup(
@@ -259,7 +463,9 @@ public Dashboard(AuthService authService, com.mycompany.monitoringenergirumah.Se
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel8)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 56, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addComponent(lblNilaiRataRata)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel10)
                 .addContainerGap())
         );
@@ -273,23 +479,33 @@ public Dashboard(AuthService authService, com.mycompany.monitoringenergirumah.Se
         jLabel11.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel11.setText("Estimasi Biaya");
 
+        lblNilaiBiaya.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        lblNilaiBiaya.setText("nilai Rp");
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel9)
-                    .addComponent(jLabel11))
-                .addContainerGap(136, Short.MAX_VALUE))
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel9)
+                            .addComponent(jLabel11)))
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addGap(54, 54, 54)
+                        .addComponent(lblNilaiBiaya)))
+                .addContainerGap(88, Short.MAX_VALUE))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel9)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 56, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addComponent(lblNilaiBiaya)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
                 .addComponent(jLabel11)
                 .addContainerGap())
         );
@@ -304,15 +520,34 @@ public Dashboard(AuthService authService, com.mycompany.monitoringenergirumah.Se
         jComboBox1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
         jComboBox1.addActionListener(this::jComboBox1ActionPerformed);
 
+        panelLineChartArea.setBackground(new java.awt.Color(255, 255, 255));
+        panelLineChartArea.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        panelLineChartArea.setMinimumSize(new java.awt.Dimension(500, 250));
+        panelLineChartArea.setPreferredSize(new java.awt.Dimension(500, 250));
+
+        javax.swing.GroupLayout panelLineChartAreaLayout = new javax.swing.GroupLayout(panelLineChartArea);
+        panelLineChartArea.setLayout(panelLineChartAreaLayout);
+        panelLineChartAreaLayout.setHorizontalGroup(
+            panelLineChartAreaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        panelLineChartAreaLayout.setVerticalGroup(
+            panelLineChartAreaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 246, Short.MAX_VALUE)
+        );
+
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
         jPanel7Layout.setHorizontalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel12)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 280, Short.MAX_VALUE)
-                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(panelLineChartArea, javax.swing.GroupLayout.DEFAULT_SIZE, 559, Short.MAX_VALUE)
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addComponent(jLabel12)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 280, Short.MAX_VALUE)
+                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         jPanel7Layout.setVerticalGroup(
@@ -322,7 +557,9 @@ public Dashboard(AuthService authService, com.mycompany.monitoringenergirumah.Se
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel12)
                     .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(155, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(panelLineChartArea, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         jPanel8.setBackground(new java.awt.Color(255, 255, 255));
@@ -331,21 +568,41 @@ public Dashboard(AuthService authService, com.mycompany.monitoringenergirumah.Se
         jLabel13.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel13.setText("Distribusi Penggunaan");
 
+        panelDonutChartArea.setBackground(new java.awt.Color(255, 255, 255));
+        panelDonutChartArea.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        javax.swing.GroupLayout panelDonutChartAreaLayout = new javax.swing.GroupLayout(panelDonutChartArea);
+        panelDonutChartArea.setLayout(panelDonutChartAreaLayout);
+        panelDonutChartAreaLayout.setHorizontalGroup(
+            panelDonutChartAreaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        panelDonutChartAreaLayout.setVerticalGroup(
+            panelDonutChartAreaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
         jPanel8Layout.setHorizontalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel13)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(panelDonutChartArea, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel8Layout.createSequentialGroup()
+                        .addComponent(jLabel13)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         jPanel8Layout.setVerticalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel13)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(panelDonutChartArea, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         jPanel9.setBackground(new java.awt.Color(255, 255, 255));
@@ -435,17 +692,18 @@ public Dashboard(AuthService authService, com.mycompany.monitoringenergirumah.Se
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(lblUser, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jLabel4))
-                        .addGap(138, 651, Short.MAX_VALUE))
+                        .addGap(138, 669, Short.MAX_VALUE))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGap(18, 18, 18)
                                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGap(18, 18, 18)
                                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                     .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -460,27 +718,32 @@ public Dashboard(AuthService authService, com.mycompany.monitoringenergirumah.Se
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addComponent(jLabel4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(lblUser))
+                .addGap(40, 40, 40)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel5)
-                            .addComponent(lblUser))
-                        .addGap(40, 40, 40)
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(17, Short.MAX_VALUE))
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGap(18, 18, 18))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)))
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(27, Short.MAX_VALUE))
         );
 
         jScrollPane1.setViewportView(jPanel2);
@@ -492,13 +755,15 @@ public Dashboard(AuthService authService, com.mycompany.monitoringenergirumah.Se
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1050, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jScrollPane1)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 810, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -513,7 +778,17 @@ public Dashboard(AuthService authService, com.mycompany.monitoringenergirumah.Se
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
-        // TODO add your handling code here:
+        if (panelLineChartArea == null) return; // guard: belum siap
+
+        String pilihan = jComboBox1.getSelectedItem().toString();
+        int hari;
+        switch (pilihan) {
+            case "14 Hari Terakhir": hari = 14; break;
+            case "21 Hari Terakhir": hari = 21; break;
+            case "30 Hari Terakhir": hari = 30; break;
+            default: hari = 7;
+        }
+        initLineChart(hari);
     }//GEN-LAST:event_jComboBox1ActionPerformed
 
     private void btnLogOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogOutActionPerformed
@@ -593,7 +868,13 @@ public Dashboard(AuthService authService, com.mycompany.monitoringenergirumah.Se
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblNilaiBiaya;
+    private javax.swing.JLabel lblNilaiHariIni;
+    private javax.swing.JLabel lblNilaiRataRata;
+    private javax.swing.JLabel lblNilaiTotalBulan;
     private javax.swing.JLabel lblUser;
     private javax.swing.JLabel lblUser2;
+    private javax.swing.JPanel panelDonutChartArea;
+    private javax.swing.JPanel panelLineChartArea;
     // End of variables declaration//GEN-END:variables
 }
