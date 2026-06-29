@@ -86,8 +86,11 @@ public class CardPerangkat extends JPanel {
 
         
         lblDaya = new JLabel("Daya : " + daya + " Watt");
+        lblDaya.setFont(new Font("Segoe UI", Font.BOLD, 12));
         lblEnergi = new JLabel(String.format("Energi : %.2f kWh", energi));
+        lblEnergi.setFont(new Font("Segoe UI", Font.BOLD, 12));
         lblBiaya = new JLabel(String.format("Biaya : Rp %,.0f Per Hari", biaya));
+        lblBiaya.setFont(new Font("Segoe UI", Font.BOLD, 12));
 
         lblEstimasi = new JLabel("Estimasi Rusak : " + estimasiRusak);
         lblEstimasi.setForeground(new Color(204, 51, 0));
