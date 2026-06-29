@@ -4,6 +4,7 @@
  */
 package com.mycompany.monitoringenergirumah.Model;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 /**
  *
@@ -25,6 +26,8 @@ public abstract class PerangkatListrik {
     private String status; 
     private int batasUmurJam; 
     private int id; 
+    private Timestamp terakhirUpdate;
+    private String jenis;
 
     public PerangkatListrik(String lokasi, int daya, double lamaPemakaian) {
         this.lokasi = lokasi; // Ini akan diisi "Kamar", "Dapur", dll
@@ -129,6 +132,23 @@ public abstract class PerangkatListrik {
     public void setId(int id) { 
         this.id = id; 
     }
+    
+    public Timestamp getTerakhirUpdate() {
+        return terakhirUpdate;
+    }
+
+    public void setTerakhirUpdate(Timestamp terakhirUpdate) {
+        this.terakhirUpdate = terakhirUpdate;
+    }
+    
+    public String getJenis() {
+        return jenis;
+    }
+
+    public void setJenis(String jenis) {
+        this.jenis = jenis;
+    }
+    
 
     @Override
     public String toString() {

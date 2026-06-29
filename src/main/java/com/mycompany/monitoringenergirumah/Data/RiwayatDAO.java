@@ -33,6 +33,22 @@ public class RiwayatDAO {
             return false;
         }
     }
+    
+    public boolean sudahAdaHariIni(int idPerangkat, int idUser) {
+        String sql = "SELECT COUNT(*) FROM riwayat_penggunaan "
+               + "WHERE id_perangkat = ? AND id_user = ? "
+               + "AND tanggal = CURDATE()";
+        try (Connection conn = KoneksiDB.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, idPerangkat);
+            ps.setInt(2, idUser);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1) > 0;
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return false;
+    }
 
     // ─────────────────────────────────────────────
     // READ — Riwayat N hari terakhir (untuk line chart)

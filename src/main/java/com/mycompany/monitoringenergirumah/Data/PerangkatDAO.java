@@ -170,6 +170,8 @@ public class PerangkatDAO {
 
         p.setId(id);
         p.setStatus(status);
+        p.setJenis(jenis);
+        p.setTerakhirUpdate(rs.getTimestamp("terakhir_update"));
         return p;
     }
 
@@ -180,4 +182,23 @@ public class PerangkatDAO {
         if (p instanceof Televisi) return "Televisi";
         return "Lainnya";
     }
+    
+    public List<PerangkatListrik> getPerangkatAktifByUser(int idUser) {
+    List<PerangkatListrik> list = new ArrayList<>();
+    String sql = "SELECT * FROM perangkat "
+               + "WHERE id_user = ? AND status = 'Aktif'";
+    try (Connection conn = KoneksiDB.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, idUser);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            PerangkatListrik p = buatObjekDariRS(rs);
+            if (p != null) list.add(p);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return list;
+}
+    
 }

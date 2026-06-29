@@ -1,5 +1,6 @@
 package GUI;
 
+import com.mycompany.monitoringenergirumah.Data.PerangkatDAO;
 import com.mycompany.monitoringenergirumah.Service.AuthService;
 import com.mycompany.monitoringenergirumah.Service.SistemMonitoring;
 import com.mycompany.monitoringenergirumah.Data.RiwayatDAO;
@@ -15,6 +16,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.data.general.DefaultPieDataset;
 import java.awt.*;
 import java.util.Map;
+import java.util.List;
 
 public class Dashboard extends javax.swing.JFrame {
 
@@ -47,6 +49,36 @@ public class Dashboard extends javax.swing.JFrame {
     public Dashboard() {
         initComponents();
     }
+    
+    private void catatRiwayatHariIni() {
+    if (authService == null || authService.getCurrentUser() == null) return;
+    int idUser = authService.getCurrentUser().getId();
+
+    // Ambil tarif dari DB atau pakai default
+    com.mycompany.monitoringenergirumah.Service.PerhitunganBiaya kalkulator =
+            sistem.getKalkulator();
+
+    PerangkatDAO perangkatDAO = new PerangkatDAO();
+    List<com.mycompany.monitoringenergirumah.Model.PerangkatListrik> aktifList =
+            perangkatDAO.getPerangkatAktifByUser(idUser);
+
+    for (com.mycompany.monitoringenergirumah.Model.PerangkatListrik p : aktifList) {
+        // Skip jika sudah dicatat hari ini
+        if (riwayatDAO.sudahAdaHariIni(p.getId(), idUser)) continue;
+
+        double konsumsi = p.hitungEnergi();
+        double biaya    = kalkulator.hitungBiayaDenganPajak(konsumsi);
+
+        riwayatDAO.simpanRiwayat(
+            p.getId(),
+            idUser,
+            java.time.LocalDate.now(),
+            p.getLamaPemakaian(),
+            konsumsi,
+            biaya
+        );
+    }
+}
 
     // ── initLogic ──
     private void initLogic() {
@@ -54,6 +86,7 @@ public class Dashboard extends javax.swing.JFrame {
         panelLineChartArea.setLayout(new BorderLayout());
         panelDonutChartArea.setLayout(new BorderLayout());
 
+        catatRiwayatHariIni();
         loadStatistikKartu();
         initLineChart(7);
         initDonutChart();
@@ -661,7 +694,7 @@ public class Dashboard extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 533, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 533, Short.MAX_VALUE)
                 .addGap(0, 10, Short.MAX_VALUE))
         );
 

@@ -33,15 +33,12 @@ private void loadProfile() {
 }
   
    public EditProfil(AuthService authService, Pengaturan pengaturan) {
-
     initComponents();
-
     this.authService = authService;
-
     this.pengaturan = pengaturan;
 
     loadProfile();
-
+   
 }
 
     /**
@@ -61,7 +58,7 @@ private void loadProfile() {
         txtPassword = new javax.swing.JPasswordField();
         btnSimpan = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jLabel1.setText("Nama Lengkap");
 
@@ -125,29 +122,39 @@ private void loadProfile() {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnSimpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSimpanActionPerformed
-    User user = authService.getCurrentUser();
+    if (txtNama.getText().trim().isEmpty()
+                || txtEmail.getText().trim().isEmpty()) {
 
-    user.setNamaLengkap(txtNama.getText());
-    user.setEmail(txtEmail.getText());
-    user.setPassword(String.valueOf(txtPassword.getPassword()));
+            JOptionPane.showMessageDialog(this,
+                    "Nama dan Email tidak boleh kosong.");
 
-    UserDAO dao = new UserDAO();
+            return;
+        }
 
-    if (dao.update(user)) {
+        User user = authService.getCurrentUser();
 
-        JOptionPane.showMessageDialog(this, "Profil berhasil diperbarui");
+        user.setNamaLengkap(txtNama.getText().trim());
+        user.setEmail(txtEmail.getText().trim());
+        user.setPassword(String.valueOf(txtPassword.getPassword()));
 
-        // Tutup halaman Pengaturan lama
-        pengaturan.dispose();
+        UserDAO dao = new UserDAO();
 
-        // Buka Pengaturan lagi agar data terbaru tampil
-        Pengaturan p = new Pengaturan(authService, pengaturan.getSistemMonitoring());
-        p.setLocationRelativeTo(null);
-        p.setVisible(true);
+        if (dao.update(user)) {
 
-        // Tutup form Edit Profil
-        dispose();
-    }
+            JOptionPane.showMessageDialog(this,
+                    "Profil berhasil diperbarui.");
+
+            // Refresh data pada halaman Pengaturan
+            pengaturan.loadDataUser();
+
+            dispose();
+
+        } else {
+
+            JOptionPane.showMessageDialog(this,
+                    "Gagal memperbarui profil.");
+
+        }
     }//GEN-LAST:event_btnSimpanActionPerformed
 
     /**

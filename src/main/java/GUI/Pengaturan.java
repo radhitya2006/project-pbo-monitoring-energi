@@ -5,12 +5,15 @@
 package GUI;
 
 import com.mycompany.monitoringenergirumah.Data.KoneksiDB;
+import com.mycompany.monitoringenergirumah.Data.PerangkatDAO;
+import com.mycompany.monitoringenergirumah.Model.PerangkatListrik;
 import com.mycompany.monitoringenergirumah.Service.AuthService;
 import com.mycompany.monitoringenergirumah.Service.SistemMonitoring;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -34,17 +37,8 @@ public Pengaturan(AuthService authService, SistemMonitoring sistem) {
 
     initComponents();
 
-    if (authService != null && authService.getCurrentUser() != null) {
-        lblUser.setText(authService.getCurrentUser().getNamaLengkap());
-        lblUser2.setText(authService.getCurrentUser().getNamaLengkap());
-        lblNamaLengkap.setText(authService.getCurrentUser().getNamaLengkap());
-
-        lblEmail.setText(authService.getCurrentUser().getEmail());
-
-        // Demi keamanan jangan tampilkan password asli
-        lblPassword.setText("********");
-    }
-
+    
+    loadDataUser();
     loadDataPerangkat();
 }
         
@@ -52,35 +46,43 @@ public Pengaturan(AuthService authService, SistemMonitoring sistem) {
 public SistemMonitoring getSistemMonitoring() {
     return sistem;
 }
+
+    public void loadDataUser() {
+
+        if (authService != null && authService.getCurrentUser() != null) {
+
+            lblUser.setText(authService.getCurrentUser().getNamaLengkap());
+            lblUser2.setText(authService.getCurrentUser().getNamaLengkap());
+            lblNamaLengkap.setText(authService.getCurrentUser().getNamaLengkap());
+
+            lblEmail.setText(authService.getCurrentUser().getEmail());
+
+            lblPassword.setText("********");
+        }
+    }
+    
     public final void loadDataPerangkat() {
 
-    DefaultTableModel model = new DefaultTableModel();
+    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+    model.setRowCount(0);
 
-    model.addColumn("Nama Perangkat");
-    model.addColumn("Status");
-    model.addColumn("Terakhir Update");
+    int idUser = authService.getCurrentUser().getId();
 
-    try {
-        Connection conn = KoneksiDB.getConnection();
-        Statement st = conn.createStatement();
+    PerangkatDAO dao = new PerangkatDAO();
 
-        String sql = "SELECT * FROM perangkat";
-        ResultSet rs = st.executeQuery(sql);
+    List<PerangkatListrik> daftar = dao.getPerangkatByUser(idUser);
 
-        while (rs.next()) {
-            model.addRow(new Object[]{
-                rs.getString("nama_perangkat"),
-                rs.getString("STATUS"),
-                rs.getString("terakhir_update")
-            });
-        }
-
-        jTable1.setModel(model); 
-
-   } catch (SQLException e) {
-    e.printStackTrace();
+    for (PerangkatListrik p : daftar) {
+        model.addRow(new Object[]{
+            p.getJenis(), 
+            p.getNama(), //lokasi
+            p.getStatus(),
+            p.getTerakhirUpdate()
+        });
+    }
 }
-}
+
+        
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -119,8 +121,8 @@ public SistemMonitoring getSistemMonitoring() {
         lblUser = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(1280, 720));
 
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jPanel1.setPreferredSize(new java.awt.Dimension(1280, 720));
 
@@ -208,7 +210,8 @@ public SistemMonitoring getSistemMonitoring() {
 
         jLabel2.setText("Selamat datang,");
 
-        jPanel3.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel7.setText("Pengaturan Profil");
@@ -252,7 +255,7 @@ public SistemMonitoring getSistemMonitoring() {
                                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(lblPassword, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(lblEmail, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(lblNamaLengkap, javax.swing.GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE))))))
+                                    .addComponent(lblNamaLengkap, javax.swing.GroupLayout.DEFAULT_SIZE, 477, Short.MAX_VALUE))))))
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
@@ -277,21 +280,30 @@ public SistemMonitoring getSistemMonitoring() {
                 .addContainerGap())
         );
 
-        jPanel7.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jPanel7.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel7.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel10.setText("Pengaturan Perangkat");
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
             },
             new String [] {
-                "Nama Perangkat", "Status", "Terakhir Update"
+                "Jenis Perangkat", "Lokasi Pemasangan", "Status", "Terakhir Update"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(jTable1);
 
         jButton15.setBackground(new java.awt.Color(0, 204, 255));
@@ -372,7 +384,7 @@ public SistemMonitoring getSistemMonitoring() {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(419, Short.MAX_VALUE))
+                .addContainerGap(421, Short.MAX_VALUE))
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
