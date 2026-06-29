@@ -7,6 +7,7 @@ package GUI;
 import com.mycompany.monitoringenergirumah.Data.PerangkatDAO;
 import com.mycompany.monitoringenergirumah.Service.SistemMonitoring;
 import com.mycompany.monitoringenergirumah.Model.PerangkatListrik;
+import com.mycompany.monitoringenergirumah.Service.AuthService;
 import java.awt.Dimension;
 import java.util.List;
 import javax.swing.JButton;
@@ -24,26 +25,28 @@ public class Perangkat extends javax.swing.JFrame {
     private boolean isPlaceholderActive = true;
 
     
-    public Perangkat(SistemMonitoring sistem, com.mycompany.monitoringenergirumah.Service.AuthService authService) {
-        initComponents();
-        
-        // 2. Simpan ransel data ke halaman ini
-        this.sistem = sistem;
-        this.authService = authService;
-        
-        // 3. Set nama user di lblUser (header) dan jLabel3 (sidebar)
-        if (authService != null && authService.getCurrentUser() != null) {
-            String namaLengkap = authService.getCurrentUser().getNamaLengkap();
-            lblUser.setText(namaLengkap);
-        }
-        
-        // Atur layout grid agar rapi (2 kolom)
-        panelContainer.setLayout(new java.awt.GridLayout(0, 2, 15, 15));
-        
-        // Panggil method untuk me-refresh data card dari sistem
-        initFilter();
-        filterData();
+public Perangkat(AuthService authService, SistemMonitoring sistem) {
+
+    initComponents();
+
+    // Simpan objek ke dalam class
+    this.authService = authService;
+    this.sistem = sistem;
+
+    // Tampilkan nama user
+    if (authService != null && authService.getCurrentUser() != null) {
+        String namaLengkap = authService.getCurrentUser().getNamaLengkap();
+        lblUser.setText(namaLengkap);
+        jLabel3.setText(namaLengkap);
     }
+
+    // Atur layout grid agar rapi (2 kolom)
+    panelContainer.setLayout(new java.awt.GridLayout(0, 2, 15, 15));
+
+    // Inisialisasi filter dan tampilkan data
+    initFilter();
+    filterData();
+}
 
     /**
      * Constructor default bawaan NetBeans (Bisa dibiarkan untuk fallback)
@@ -294,10 +297,8 @@ public class Perangkat extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         btnBeranda = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
+        btnPengaturan = new javax.swing.JButton();
         jButton6 = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
 
@@ -383,7 +384,7 @@ public class Perangkat extends javax.swing.JFrame {
 
         jScrollPane1.setViewportView(jPanel4);
 
-        lblUser.setText("nama user");
+        lblUser.setText("user");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -434,11 +435,11 @@ public class Perangkat extends javax.swing.JFrame {
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("Monitoring");
+        jLabel1.setText("Energy");
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("Energi");
+        jLabel2.setText("Tracker");
 
         btnBeranda.setBackground(new java.awt.Color(0, 204, 255));
         btnBeranda.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -446,25 +447,16 @@ public class Perangkat extends javax.swing.JFrame {
         btnBeranda.setText("Beranda");
         btnBeranda.addActionListener(this::btnBerandaActionPerformed);
 
-        jButton2.setBackground(new java.awt.Color(0, 204, 255));
-        jButton2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jButton2.setForeground(new java.awt.Color(255, 255, 255));
-        jButton2.setText("Data Penggunaan");
-
-        jButton3.setBackground(new java.awt.Color(0, 204, 255));
-        jButton3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jButton3.setForeground(new java.awt.Color(255, 255, 255));
-        jButton3.setText("Laporan");
-
         jButton4.setBackground(new java.awt.Color(0, 204, 255));
         jButton4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jButton4.setForeground(new java.awt.Color(255, 255, 255));
         jButton4.setText("Perangkat");
 
-        jButton5.setBackground(new java.awt.Color(0, 204, 255));
-        jButton5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jButton5.setForeground(new java.awt.Color(255, 255, 255));
-        jButton5.setText("Pengaturan");
+        btnPengaturan.setBackground(new java.awt.Color(0, 204, 255));
+        btnPengaturan.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnPengaturan.setForeground(new java.awt.Color(255, 255, 255));
+        btnPengaturan.setText("Pengaturan");
+        btnPengaturan.addActionListener(this::btnPengaturanActionPerformed);
 
         jButton6.setBackground(new java.awt.Color(0, 204, 255));
         jButton6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -473,7 +465,7 @@ public class Perangkat extends javax.swing.JFrame {
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel3.setText("Nama User");
+        jLabel3.setText("User");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -483,19 +475,17 @@ public class Perangkat extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnBeranda, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
                             .addComponent(jLabel2))
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnPengaturan, javax.swing.GroupLayout.DEFAULT_SIZE, 129, Short.MAX_VALUE)
                     .addComponent(jButton6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(32, 32, 32)
+                .addGap(52, 52, 52)
                 .addComponent(jLabel3)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -508,19 +498,15 @@ public class Perangkat extends javax.swing.JFrame {
                 .addComponent(jLabel2)
                 .addGap(18, 18, 18)
                 .addComponent(btnBeranda)
-                .addGap(18, 18, 18)
-                .addComponent(jButton2)
-                .addGap(18, 18, 18)
-                .addComponent(jButton3)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButton4)
-                .addGap(18, 18, 18)
-                .addComponent(jButton5)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnPengaturan)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButton6)
-                .addGap(276, 276, 276)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel3)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(77, 77, 77))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -563,6 +549,14 @@ public class Perangkat extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtSearchActionPerformed
 
+    private void btnPengaturanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPengaturanActionPerformed
+            Pengaturan formPengaturan = new Pengaturan(authService, sistem);
+    formPengaturan.setLocationRelativeTo(null);
+    formPengaturan.setVisible(true);
+
+    this.dispose();
+    }//GEN-LAST:event_btnPengaturanActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -590,13 +584,11 @@ public class Perangkat extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBeranda;
+    private javax.swing.JButton btnPengaturan;
     private javax.swing.JButton btnTambahPerangkat;
     private javax.swing.JComboBox<String> comboJenis;
     private javax.swing.JComboBox<String> comboStatus;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
