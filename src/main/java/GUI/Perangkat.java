@@ -297,7 +297,7 @@ public Perangkat(AuthService authService, SistemMonitoring sistem) {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         btnBeranda = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        btnPerangkat = new javax.swing.JButton();
         btnPengaturan = new javax.swing.JButton();
         jButton6 = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
@@ -447,10 +447,10 @@ public Perangkat(AuthService authService, SistemMonitoring sistem) {
         btnBeranda.setText("Beranda");
         btnBeranda.addActionListener(this::btnBerandaActionPerformed);
 
-        jButton4.setBackground(new java.awt.Color(0, 204, 255));
-        jButton4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jButton4.setForeground(new java.awt.Color(255, 255, 255));
-        jButton4.setText("Perangkat");
+        btnPerangkat.setBackground(new java.awt.Color(0, 204, 255));
+        btnPerangkat.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnPerangkat.setForeground(new java.awt.Color(255, 255, 255));
+        btnPerangkat.setText("Perangkat");
 
         btnPengaturan.setBackground(new java.awt.Color(0, 204, 255));
         btnPengaturan.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -475,7 +475,7 @@ public Perangkat(AuthService authService, SistemMonitoring sistem) {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnBeranda, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnPerangkat, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
@@ -499,7 +499,7 @@ public Perangkat(AuthService authService, SistemMonitoring sistem) {
                 .addGap(18, 18, 18)
                 .addComponent(btnBeranda)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton4)
+                .addComponent(btnPerangkat)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnPengaturan)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -585,10 +585,10 @@ public Perangkat(AuthService authService, SistemMonitoring sistem) {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBeranda;
     private javax.swing.JButton btnPengaturan;
+    private javax.swing.JButton btnPerangkat;
     private javax.swing.JButton btnTambahPerangkat;
     private javax.swing.JComboBox<String> comboJenis;
     private javax.swing.JComboBox<String> comboStatus;
-    private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton6;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
