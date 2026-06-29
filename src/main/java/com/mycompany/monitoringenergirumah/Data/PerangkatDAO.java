@@ -11,9 +11,9 @@ public class PerangkatDAO {
     public boolean tambahPerangkat(PerangkatListrik p, int idUser) {
         System.out.println("Method tambahPerangkat dipanggil");
         String sql = "INSERT INTO perangkat "
-                   + "(id_user, lokasi_pemasangan, jenis, daya_watt, lama_pemakaian, "
-                   + "status, cop, daya_standby, persentase_standby, terakhir_update) "
-                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+           + "(id_user, lokasi_pemasangan, jenis, daya_watt, lama_pemakaian, "
+           + "status, cop, daya_standby, persentase_standby, terakhir_update, tanggal_pemasangan) "
+           + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
         try (Connection conn = KoneksiDB.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -23,6 +23,7 @@ public class PerangkatDAO {
             ps.setInt(4, p.getDaya());
             ps.setDouble(5, p.getLamaPemakaian());
             ps.setString(6, p.getStatus());
+            ps.setDate(10, java.sql.Date.valueOf(p.getTanggalPemasangan()));
 
             // Field khusus per jenis
             if (p instanceof AC) {
@@ -71,8 +72,9 @@ public class PerangkatDAO {
 
     // ── Update status saja ──
     public boolean updateStatus(int idPerangkat, String status) {
-        String sql = "UPDATE perangkat SET status = ?, terakhir_update = NOW() "
-                   + "WHERE id_perangkat = ?";
+        String sql =
+        "UPDATE perangkat SET status=?, terakhir_update=NOW() "
+        + "WHERE id_perangkat=?";
         try (Connection conn = KoneksiDB.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -88,10 +90,11 @@ public class PerangkatDAO {
 
     // ── Update seluruh data perangkat ──
     public boolean updatePerangkat(int idPerangkat, PerangkatListrik p) {
-        String sql = "UPDATE perangkat SET lokasi_pemasangan=?, jenis=?, daya_watt=?, "
-                   + "lama_pemakaian=?, status=?, cop=?, daya_standby=?, "
-                   + "persentase_standby=?, terakhir_update=NOW() "
-                   + "WHERE id_perangkat=?";
+        String sql =
+        "UPDATE perangkat SET lokasi_pemasangan=?, jenis=?, daya_watt=?, "
+        + "lama_pemakaian=?, status=?, cop=?, daya_standby=?, "
+        + "persentase_standby=?, tanggal_pemasangan=?, terakhir_update=NOW() "
+        + "WHERE id_perangkat=?";
         try (Connection conn = KoneksiDB.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -115,7 +118,8 @@ public class PerangkatDAO {
                 ps.setNull(8, Types.DECIMAL);
             }
 
-            ps.setInt(9, idPerangkat);
+            ps.setDate(9, Date.valueOf(p.getTanggalPemasangan()));
+            ps.setInt(10, idPerangkat);
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
@@ -172,6 +176,11 @@ public class PerangkatDAO {
         p.setStatus(status);
         p.setJenis(jenis);
         p.setTerakhirUpdate(rs.getTimestamp("terakhir_update"));
+        Date tanggal = rs.getDate("tanggal_pemasangan");
+
+        if (tanggal != null) {
+            p.setTanggalPemasangan(tanggal.toLocalDate());
+        }
         return p;
     }
 

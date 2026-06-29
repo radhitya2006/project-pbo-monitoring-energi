@@ -62,156 +62,166 @@ public Perangkat(AuthService authService, SistemMonitoring sistem) {
 
     private void filterData() {
 
-    panelContainer.removeAll();
+        panelContainer.removeAll();
 
-    if (authService == null || authService.getCurrentUser() == null) {
+        if (authService == null || authService.getCurrentUser() == null) {
+            panelContainer.revalidate();
+            panelContainer.repaint();
+            return;
+        }
+
+        PerangkatDAO dao = new PerangkatDAO();
+
+        List<PerangkatListrik> daftarPerangkat =
+                dao.getPerangkatByUser(
+                        authService.getCurrentUser().getId()
+                );
+
+        String keyword =
+                isPlaceholderActive
+                        ? ""
+                        : txtSearch.getText().toLowerCase().trim();
+
+        String filterJenis =
+                comboJenis.getSelectedItem().toString();
+
+        String filterStatus =
+                comboStatus.getSelectedItem().toString();
+
+        for (PerangkatListrik p : daftarPerangkat) {
+
+            String jenis = p.getClass().getSimpleName();
+            String statusSementara = p.getStatus();
+            
+            // 2. Ubah secara real-time jika kondisinya 0%
+            if (p.getPersentaseKondisi() <= 0) {
+                statusSementara = PerangkatListrik.STATUS_RUSAK;
+            }
+
+            // 3. Kunci nilainya di variabel FINAL agar diizinkan masuk ke Lambda (tombol klik)
+            final String statusAkhir = statusSementara;
+
+            // Deklarasi variabel filter HANYA SEKALI
+            boolean matchKeyword =
+                    keyword.isEmpty()
+                    || p.getNama().toLowerCase().contains(keyword)
+                    || jenis.toLowerCase().contains(keyword);
+
+            boolean matchJenis =
+                    filterJenis.equals("Semua Jenis")
+                    || jenis.equalsIgnoreCase(filterJenis);
+
+            boolean matchStatus;
+
+            switch (filterStatus) {
+
+                case "Perangkat Aktif":
+                    matchStatus =
+                            statusAkhir.equals(
+                                    PerangkatListrik.STATUS_AKTIF
+                            );
+                    break;
+
+                case "Nonaktif & Rusak":
+                    matchStatus =
+                            statusAkhir.equals(
+                                    PerangkatListrik.STATUS_NONAKTIF
+                            )
+                            || statusAkhir.equals(
+                                    PerangkatListrik.STATUS_RUSAK
+                            );
+                    break;
+
+                default:
+                    matchStatus = true;
+                    break;
+            }
+
+            // Jika lolos semua filter, tambahkan ke layar
+            if (matchKeyword && matchJenis && matchStatus) {
+
+                String lokasi = p.getNama();
+
+                int daya = p.getDaya();
+
+                double energi =
+                        p.hitungEnergi();
+
+                double biaya =
+                        sistem.hitungBiayaPerangkat(p);
+
+        
+                CardPerangkat card =
+                        new CardPerangkat(
+                            lokasi,
+                            jenis,
+                            daya,
+                            energi,
+                            biaya,
+                            p.getPersentaseKondisi(),
+                            p.getSisaUmur(),
+                            statusAkhir
+                        );
+
+                card.getBtnEdit().addActionListener(e -> {
+
+                    TambahPerangkat formEdit =
+                            new TambahPerangkat(
+                                    this,
+                                    sistem,
+                                    p
+                            );
+
+                    formEdit.setLocationRelativeTo(this);
+                    formEdit.setVisible(true);
+                });
+
+                card.getBtnNonaktif().addActionListener(e -> {
+
+                    int confirm =
+                            javax.swing.JOptionPane.showConfirmDialog(
+                                    this,
+                                    "Ubah status perangkat?",
+                                    "Konfirmasi",
+                                    javax.swing.JOptionPane.YES_NO_OPTION
+                            );
+
+                    if (confirm ==
+                            javax.swing.JOptionPane.YES_OPTION) {
+
+                        PerangkatDAO perangkatDAO =
+                                new PerangkatDAO();
+
+                        String statusBaru;
+
+                        if (statusAkhir.equals(
+                                PerangkatListrik.STATUS_AKTIF)) {
+
+                            statusBaru =
+                                    PerangkatListrik.STATUS_NONAKTIF;
+
+                        } else {
+
+                            statusBaru =
+                                    PerangkatListrik.STATUS_AKTIF;
+                        }
+
+                        perangkatDAO.updateStatus(
+                                p.getId(),
+                                statusBaru
+                        );
+
+                        filterData();
+                    }
+                });
+
+                panelContainer.add(card);
+            }
+        }
+
         panelContainer.revalidate();
         panelContainer.repaint();
-        return;
     }
-
-    PerangkatDAO dao = new PerangkatDAO();
-
-    List<PerangkatListrik> daftarPerangkat =
-            dao.getPerangkatByUser(
-                    authService.getCurrentUser().getId()
-            );
-
-    String keyword =
-            isPlaceholderActive
-                    ? ""
-                    : txtSearch.getText().toLowerCase().trim();
-
-    String filterJenis =
-            comboJenis.getSelectedItem().toString();
-
-    String filterStatus =
-            comboStatus.getSelectedItem().toString();
-
-    for (PerangkatListrik p : daftarPerangkat) {
-
-        String jenis = p.getClass().getSimpleName();
-        String status = p.getStatus();
-
-        boolean matchKeyword =
-                keyword.isEmpty()
-                || p.getNama().toLowerCase().contains(keyword)
-                || jenis.toLowerCase().contains(keyword);
-
-        boolean matchJenis =
-                filterJenis.equals("Semua Jenis")
-                || jenis.equalsIgnoreCase(filterJenis);
-
-        boolean matchStatus;
-
-        switch (filterStatus) {
-
-            case "Perangkat Aktif":
-                matchStatus =
-                        status.equals(
-                                PerangkatListrik.STATUS_AKTIF
-                        );
-                break;
-
-            case "Nonaktif & Rusak":
-                matchStatus =
-                        status.equals(
-                                PerangkatListrik.STATUS_NONAKTIF
-                        )
-                        || status.equals(
-                                PerangkatListrik.STATUS_RUSAK
-                        );
-                break;
-
-            default:
-                matchStatus = true;
-                break;
-        }
-
-        if (matchKeyword && matchJenis && matchStatus) {
-
-            String lokasi = p.getNama();
-
-            int daya = p.getDaya();
-
-            double energi =
-                    p.hitungEnergi();
-
-            double biaya =
-                    sistem.hitungBiayaPerangkat(p);
-
-      
-            CardPerangkat card =
-                    new CardPerangkat(
-                        lokasi,
-                        jenis,
-                        daya,
-                        energi,
-                        biaya,
-                        p.getPersentaseKondisi(),
-                        p.getSisaUmur(),
-                        status
-                    );
-
-            card.getBtnEdit().addActionListener(e -> {
-
-                TambahPerangkat formEdit =
-                        new TambahPerangkat(
-                                this,
-                                sistem,
-                                p
-                        );
-
-                formEdit.setLocationRelativeTo(this);
-                formEdit.setVisible(true);
-            });
-
-            card.getBtnNonaktif().addActionListener(e -> {
-
-                int confirm =
-                        javax.swing.JOptionPane.showConfirmDialog(
-                                this,
-                                "Ubah status perangkat?",
-                                "Konfirmasi",
-                                javax.swing.JOptionPane.YES_NO_OPTION
-                        );
-
-                if (confirm ==
-                        javax.swing.JOptionPane.YES_OPTION) {
-
-                    PerangkatDAO perangkatDAO =
-                            new PerangkatDAO();
-
-                    String statusBaru;
-
-                    if (status.equals(
-                            PerangkatListrik.STATUS_AKTIF)) {
-
-                        statusBaru =
-                                PerangkatListrik.STATUS_NONAKTIF;
-
-                    } else {
-
-                        statusBaru =
-                                PerangkatListrik.STATUS_AKTIF;
-                    }
-
-                    perangkatDAO.updateStatus(
-                            p.getId(),
-                            statusBaru
-                    );
-
-                    filterData();
-                }
-            });
-
-            panelContainer.add(card);
-        }
-    }
-
-    panelContainer.revalidate();
-    panelContainer.repaint();
-}
     
     public void refreshData() {
         filterData();

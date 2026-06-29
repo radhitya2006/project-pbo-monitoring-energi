@@ -95,6 +95,12 @@ public abstract class PerangkatListrik {
 }
     
     public String getSisaUmur() {
+        
+    int persentaseKondisi = getPersentaseKondisi();
+        
+    if (persentaseKondisi <= 0 || (status != null && status.equalsIgnoreCase("Rusak"))) {
+        return "Rusak";
+    }
 
     LocalDate estimasi = getEstimasiRusak();
 

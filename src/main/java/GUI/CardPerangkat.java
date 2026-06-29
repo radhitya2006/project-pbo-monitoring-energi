@@ -38,6 +38,13 @@ public class CardPerangkat extends JPanel {
         String sisaUmur,
         String status
     ) {
+        // ==========================================
+        // CEK KONDISI: Jika 0%, ubah status ke "Rusak"
+        // ==========================================
+        if (persentaseKondisi <= 0) {
+            persentaseKondisi = 0; // Pastikan tidak bernilai negatif
+            status = "Rusak";
+        }
 
         setPreferredSize(new Dimension(250, 220));
         setBackground(Color.WHITE);
@@ -93,7 +100,6 @@ public class CardPerangkat extends JPanel {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        
         lblDaya = new JLabel("Daya : " + daya + " Watt");
         lblDaya.setFont(new Font("Segoe UI", Font.BOLD, 12));
         lblEnergi = new JLabel(String.format("Energi : %.2f kWh", energi));
@@ -106,7 +112,12 @@ public class CardPerangkat extends JPanel {
 
         lblPersen = new JLabel(persentaseKondisi + "%");
         lblPersen.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        lblSisaUmur = new JLabel("± " + sisaUmur + " lagi");
+        if (sisaUmur.equalsIgnoreCase("Rusak")) {
+            lblSisaUmur = new JLabel("Rusak Total");
+            lblSisaUmur.setForeground(new Color(231, 76, 60)); // Warna merah agar lebih jelas
+        } else {
+            lblSisaUmur = new JLabel("± " + sisaUmur + " lagi");
+        }
         lblSisaUmur.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         
         progressKondisi = new JProgressBar();
@@ -117,29 +128,19 @@ public class CardPerangkat extends JPanel {
 
         progressKondisi.setBorderPainted(false);
         progressKondisi.setStringPainted(false);
-        progressKondisi.setPreferredSize(new Dimension(220,8));
-        progressKondisi.setMaximumSize(new Dimension(Integer.MAX_VALUE,8));
+        progressKondisi.setPreferredSize(new Dimension(220, 8));
+        progressKondisi.setMaximumSize(new Dimension(Integer.MAX_VALUE, 8));
         
         if (persentaseKondisi >= 80) {
-
-            progressKondisi.setForeground(new Color(46,204,113));
-
+            progressKondisi.setForeground(new Color(46, 204, 113));
         } else if (persentaseKondisi >= 60) {
-
-            progressKondisi.setForeground(new Color(132,204,22));
-
+            progressKondisi.setForeground(new Color(132, 204, 22));
         } else if (persentaseKondisi >= 40) {
-
-            progressKondisi.setForeground(new Color(241,196,15));
-
+            progressKondisi.setForeground(new Color(241, 196, 15));
         } else if (persentaseKondisi >= 20) {
-
-            progressKondisi.setForeground(new Color(230,126,34));
-
+            progressKondisi.setForeground(new Color(230, 126, 34));
         } else {
-
-            progressKondisi.setForeground(new Color(231,76,60));
-
+            progressKondisi.setForeground(new Color(231, 76, 60));
         }
         
         JPanel panelKondisi = new JPanel(new BorderLayout());
@@ -147,7 +148,6 @@ public class CardPerangkat extends JPanel {
 
         panelKondisi.add(lblKondisi, BorderLayout.WEST);
         panelKondisi.add(lblPersen, BorderLayout.EAST);
-
         
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -210,16 +210,9 @@ public class CardPerangkat extends JPanel {
             panelFooter.add(btnNonaktif);
 
         } else if (status.equalsIgnoreCase("Rusak")) {
-
-            JLabel lblRusak = new JLabel("⚠ RUSAK");
-            lblRusak.setForeground(new Color(204, 0, 0));
-            lblRusak.setFont(new Font("Segoe UI", Font.BOLD, 12));
-
-            btnNonaktif.setText("Aktifkan Kembali");
-            btnNonaktif.setBackground(new Color(0, 180, 0));
-
-            panelFooter.add(lblRusak);
-            panelFooter.add(btnNonaktif);
+            
+            // Dibiarkan kosong agar tidak ada tombol/label 
+            // tambahan di bawah saat perangkat rusak
 
         } else {
 
