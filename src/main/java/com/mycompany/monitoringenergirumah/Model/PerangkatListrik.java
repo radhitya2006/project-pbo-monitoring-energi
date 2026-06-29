@@ -6,6 +6,8 @@ package com.mycompany.monitoringenergirumah.Model;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
 /**
  *
  * @author ASUS
@@ -40,28 +42,88 @@ public abstract class PerangkatListrik {
     }
     
     public LocalDate getEstimasiRusak() {
-        if (this.lamaPemakaian <= 0) {
-            return null; 
-        }
-        
-        // Menentukan Faktor Lingkungan berdasarkan Lokasi (Case Insensitive)
-        double multiplierLokasi = 1.0; // Default 100% (Normal)
-        String lok = this.lokasi.toLowerCase();
-        
-        if (lok.contains("dapur")) {
-            multiplierLokasi = 0.8; // Dapur panas, umur sisa 80%
-        } else if (lok.contains("kamar mandi") || lok.contains("toilet")) {
-            multiplierLokasi = 0.7; // Lembap, umur sisa 70%
-        } else if (lok.contains("luar") || lok.contains("teras") || lok.contains("taman")) {
-            multiplierLokasi = 0.5; // Ekstrem, umur sisa 50%
-        }
-        
-        // Kalkulasi Umur Efektif
-        long umurEfektifJam = (long) (this.batasUmurJam * multiplierLokasi);
-        long sisaHari = (long) (umurEfektifJam / this.lamaPemakaian);
-        
-        return this.tanggalPemasangan.plusDays(sisaHari);
+    if (this.lamaPemakaian <= 0) {
+        return null;
     }
+
+    double multiplierLokasi = 1.0;
+    String lok = this.lokasi.toLowerCase();
+
+    if (lok.contains("dapur")) {
+        multiplierLokasi = 0.8;
+    } else if (lok.contains("kamar mandi") || lok.contains("toilet")) {
+        multiplierLokasi = 0.7;
+    } else if (lok.contains("luar") || lok.contains("teras") || lok.contains("taman")) {
+        multiplierLokasi = 0.5;
+    }
+
+    long umurEfektifJam = (long) (this.batasUmurJam * multiplierLokasi);
+    long sisaHari = (long) (umurEfektifJam / this.lamaPemakaian);
+
+    return this.tanggalPemasangan.plusDays(sisaHari);
+}
+        
+    /**
+     *
+     * @return
+     */
+    public int getPersentaseKondisi() {
+
+    long hariDipakai = ChronoUnit.DAYS.between(tanggalPemasangan, LocalDate.now());
+
+    double totalJamTerpakai = hariDipakai * lamaPemakaian;
+
+    double multiplierLokasi = 1.0;
+    String lok = lokasi.toLowerCase();
+
+    if (lok.contains("dapur")) {
+        multiplierLokasi = 0.8;
+    } else if (lok.contains("kamar mandi") || lok.contains("toilet")) {
+        multiplierLokasi = 0.7;
+    } else if (lok.contains("luar") || lok.contains("teras") || lok.contains("taman")) {
+        multiplierLokasi = 0.5;
+    }
+
+    double umurEfektif = batasUmurJam * multiplierLokasi;
+
+    double persen = (1 - (totalJamTerpakai / umurEfektif)) * 100;
+
+    if (persen < 0) persen = 0;
+    if (persen > 100) persen = 100;
+
+    return (int) Math.round(persen);
+}
+    
+    public String getSisaUmur() {
+
+    LocalDate estimasi = getEstimasiRusak();
+
+    if (estimasi == null) {
+        return "-";
+    }
+
+    if (!estimasi.isAfter(LocalDate.now())) {
+        return "Segera Ganti";
+    }
+
+    Period p = Period.between(LocalDate.now(), estimasi);
+
+    StringBuilder hasil = new StringBuilder();
+
+    if (p.getYears() > 0) {
+        hasil.append(p.getYears()).append(" thn ");
+    }
+
+    if (p.getMonths() > 0) {
+        hasil.append(p.getMonths()).append(" bln ");
+    }
+
+    if (p.getYears() == 0 && p.getMonths() == 0) {
+        hasil.append(p.getDays()).append(" hari");
+    }
+
+    return hasil.toString().trim();
+}
     
     public abstract double hitungEnergi();
 

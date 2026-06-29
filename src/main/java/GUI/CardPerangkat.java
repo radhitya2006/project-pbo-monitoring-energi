@@ -11,7 +11,11 @@ public class CardPerangkat extends JPanel {
     private JLabel lblDaya;
     private JLabel lblEnergi;
     private JLabel lblBiaya;
-    private JLabel lblEstimasi;
+    private JLabel lblKondisi;
+    private JLabel lblPersen;
+    private JLabel lblSisaUmur;
+
+    private JProgressBar progressKondisi;
 
     private JButton btnEdit;
     private JButton btnNonaktif;
@@ -25,16 +29,17 @@ public class CardPerangkat extends JPanel {
     }
 
     public CardPerangkat(
-            String lokasi,
-            String jenis,
-            int daya,
-            double energi,
-            double biaya,
-            String estimasiRusak,
-            String status
+        String lokasi,
+        String jenis,
+        int daya,
+        double energi,
+        double biaya,
+        int persentaseKondisi,
+        String sisaUmur,
+        String status
     ) {
 
-        setPreferredSize(new Dimension(260, 220));
+        setPreferredSize(new Dimension(250, 220));
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
         setLayout(new BorderLayout());
@@ -79,10 +84,14 @@ public class CardPerangkat extends JPanel {
         // =========================
         // Body
         // =========================
-        JPanel panelBody = new JPanel();
+        JPanel panelBody = new JPanel(new GridBagLayout());
         panelBody.setOpaque(false);
-        panelBody.setLayout(new GridLayout(4, 1));
         panelBody.setBorder(new EmptyBorder(5, 10, 5, 10));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(4, 0, 4, 0);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         
         lblDaya = new JLabel("Daya : " + daya + " Watt");
@@ -92,15 +101,86 @@ public class CardPerangkat extends JPanel {
         lblBiaya = new JLabel(String.format("Biaya : Rp %,.0f Per Hari", biaya));
         lblBiaya.setFont(new Font("Segoe UI", Font.BOLD, 12));
 
-        lblEstimasi = new JLabel("Estimasi Rusak : " + estimasiRusak);
-        lblEstimasi.setForeground(new Color(204, 51, 0));
-        lblEstimasi.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblKondisi = new JLabel("Kondisi Perangkat");
+        lblKondisi.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+
+        lblPersen = new JLabel(persentaseKondisi + "%");
+        lblPersen.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblSisaUmur = new JLabel("± " + sisaUmur + " lagi");
+        lblSisaUmur.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        
+        progressKondisi = new JProgressBar();
+
+        progressKondisi.setMinimum(0);
+        progressKondisi.setMaximum(100);
+        progressKondisi.setValue(persentaseKondisi);
+
+        progressKondisi.setBorderPainted(false);
+        progressKondisi.setStringPainted(false);
+        progressKondisi.setPreferredSize(new Dimension(220,8));
+        progressKondisi.setMaximumSize(new Dimension(Integer.MAX_VALUE,8));
+        
+        if (persentaseKondisi >= 80) {
+
+            progressKondisi.setForeground(new Color(46,204,113));
+
+        } else if (persentaseKondisi >= 60) {
+
+            progressKondisi.setForeground(new Color(132,204,22));
+
+        } else if (persentaseKondisi >= 40) {
+
+            progressKondisi.setForeground(new Color(241,196,15));
+
+        } else if (persentaseKondisi >= 20) {
+
+            progressKondisi.setForeground(new Color(230,126,34));
+
+        } else {
+
+            progressKondisi.setForeground(new Color(231,76,60));
+
+        }
+        
+        JPanel panelKondisi = new JPanel(new BorderLayout());
+        panelKondisi.setOpaque(false);
+
+        panelKondisi.add(lblKondisi, BorderLayout.WEST);
+        panelKondisi.add(lblPersen, BorderLayout.EAST);
 
         
-        panelBody.add(lblDaya);
-        panelBody.add(lblEnergi);
-        panelBody.add(lblBiaya);
-        panelBody.add(lblEstimasi);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+
+        panelBody.add(lblDaya, gbc);
+
+        gbc.gridy++;
+        panelBody.add(lblEnergi, gbc);
+
+        gbc.gridy++;
+        panelBody.add(lblBiaya, gbc);
+
+        gbc.gridy++;
+        gbc.gridx = 0;
+        gbc.gridwidth = 1;
+        gbc.weightx = 1;
+
+        panelBody.add(lblKondisi, gbc);
+        
+        gbc.gridx = 1;
+        gbc.weightx = 0;
+
+        panelBody.add(lblPersen, gbc);
+
+        gbc.gridy++;
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
+
+        panelBody.add(progressKondisi, gbc);
+
+        gbc.gridy++;
+        panelBody.add(lblSisaUmur, gbc);
 
         // =========================
         // Footer

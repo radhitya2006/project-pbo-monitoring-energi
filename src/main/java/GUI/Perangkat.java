@@ -9,7 +9,8 @@ import com.mycompany.monitoringenergirumah.Service.SistemMonitoring;
 import com.mycompany.monitoringenergirumah.Model.PerangkatListrik;
 import com.mycompany.monitoringenergirumah.Service.AuthService;
 import java.awt.Dimension;
-import java.util.List;
+import java.awt.FlowLayout;
+import java.util.List;  
 import javax.swing.JButton;
 
 /**
@@ -41,7 +42,7 @@ public Perangkat(AuthService authService, SistemMonitoring sistem) {
     }
 
     // Atur layout grid agar rapi (2 kolom)
-    panelContainer.setLayout(new java.awt.GridLayout(0, 2, 15, 15));
+    panelContainer.setLayout(new WrapLayout(FlowLayout.LEFT, 15, 15));
 
     // Inisialisasi filter dan tampilkan data
     initFilter();
@@ -54,7 +55,7 @@ public Perangkat(AuthService authService, SistemMonitoring sistem) {
     public Perangkat() {
         initComponents();
         sistem = new SistemMonitoring(); // Fallback jika dijalankan langsung (Shift+F6)
-        panelContainer.setLayout(new java.awt.GridLayout(0, 2, 15, 15));
+        panelContainer.setLayout(new WrapLayout(FlowLayout.LEFT, 15, 15));
         initFilter();
         filterData();
     }
@@ -139,28 +140,17 @@ public Perangkat(AuthService authService, SistemMonitoring sistem) {
             double biaya =
                     sistem.hitungBiayaPerangkat(p);
 
-            String estimasi = "Belum ada data";
-
-            if (p.getEstimasiRusak() != null) {
-
-                java.time.format.DateTimeFormatter fmt =
-                        java.time.format.DateTimeFormatter.ofPattern(
-                                "dd MMM yyyy"
-                        );
-
-                estimasi =
-                        p.getEstimasiRusak().format(fmt);
-            }
-
+      
             CardPerangkat card =
                     new CardPerangkat(
-                            lokasi,
-                            jenis,
-                            daya,
-                            energi,
-                            biaya,
-                            estimasi,
-                            status
+                        lokasi,
+                        jenis,
+                        daya,
+                        energi,
+                        biaya,
+                        p.getPersentaseKondisi(),
+                        p.getSisaUmur(),
+                        status
                     );
 
             card.getBtnEdit().addActionListener(e -> {
@@ -290,7 +280,6 @@ public Perangkat(AuthService authService, SistemMonitoring sistem) {
         txtSearch = new javax.swing.JTextField();
         comboStatus = new javax.swing.JComboBox<>();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jPanel4 = new javax.swing.JPanel();
         panelContainer = new javax.swing.JPanel();
         lblUser = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
@@ -359,31 +348,10 @@ public Perangkat(AuthService authService, SistemMonitoring sistem) {
         jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
         jScrollPane1.setForeground(new java.awt.Color(255, 255, 255));
 
-        jPanel4.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel4.setOpaque(false);
-
         panelContainer.setBackground(new java.awt.Color(255, 255, 255));
         panelContainer.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         panelContainer.setLayout(new java.awt.GridLayout(0, 2));
-
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(panelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(994, Short.MAX_VALUE))
-        );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(panelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(478, Short.MAX_VALUE))
-        );
-
-        jScrollPane1.setViewportView(jPanel4);
+        jScrollPane1.setViewportView(panelContainer);
 
         lblUser.setText("user");
 
@@ -600,7 +568,6 @@ public Perangkat(AuthService authService, SistemMonitoring sistem) {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblUser;
     private javax.swing.JPanel panelContainer;
