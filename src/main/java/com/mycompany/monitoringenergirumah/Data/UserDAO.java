@@ -51,6 +51,26 @@ public class UserDAO {
         }
     }
 
+    public boolean update(User user) {
+
+    String sql = "UPDATE user SET nama_lengkap = ?, email = ?, password = ? WHERE id_user = ?";
+
+    try (Connection conn = KoneksiDB.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setString(1, user.getNamaLengkap());
+        stmt.setString(2, user.getEmail());
+        stmt.setString(3, user.getPassword());
+        stmt.setInt(4, user.getId());   // <-- gunakan getId()
+
+        return stmt.executeUpdate() > 0;
+
+    } catch (SQLException e) {
+        System.out.println("update error: " + e.getMessage());
+        return false;
+    }
+}
+    
     public int count() {
         String sql = "SELECT COUNT(*) FROM user";
         try (Connection conn = KoneksiDB.getConnection();
