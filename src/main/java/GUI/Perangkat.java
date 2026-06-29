@@ -517,10 +517,15 @@ public Perangkat(AuthService authService, SistemMonitoring sistem) {
 
     private void btnTambahPerangkatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahPerangkatActionPerformed
         TambahPerangkat form =
-            new TambahPerangkat(this, sistem, authService);
+        new TambahPerangkat(this, sistem, authService);
 
-        form.setLocationRelativeTo(this);
-        form.setVisible(true);
+    
+
+    // 2. Posisikan ke tengah layar setelah ukurannya diatur
+    form.setLocationRelativeTo(null);
+    
+    // 3. Tampilkan form
+    form.setVisible(true);
         
     }//GEN-LAST:event_btnTambahPerangkatActionPerformed
 

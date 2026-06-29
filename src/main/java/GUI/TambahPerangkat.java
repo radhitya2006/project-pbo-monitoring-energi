@@ -30,9 +30,10 @@ public class TambahPerangkat extends javax.swing.JFrame {
         jPanel3.setVisible(false); 
         jPanel4.setVisible(false); 
         
-        pack();
+        this.getContentPane().setLayout(new java.awt.BorderLayout());
+        this.getContentPane().add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
-    
+        setSize(new java.awt.Dimension(450, 650));
         pilihJenis.addActionListener(e -> updatePanelVisibility());
     }
 
@@ -43,7 +44,7 @@ public class TambahPerangkat extends javax.swing.JFrame {
         
          jPanel1.revalidate(); 
         jPanel1.repaint();    
-        pack();
+        
         
         hitungEstimasi();
     }
@@ -54,6 +55,8 @@ public class TambahPerangkat extends javax.swing.JFrame {
         this.sistem = sistem;
         this.authService = authService;
         initLogic();
+        
+        setLocationRelativeTo(parent);
     }
     
     // ========================================================
@@ -94,6 +97,13 @@ public class TambahPerangkat extends javax.swing.JFrame {
         if (p instanceof Televisi) {
             txtDayaStandby.setText(String.valueOf(((Televisi) p).getDayaStandby()));
             txtPersentaseStandby.setText(String.valueOf(((Televisi) p).getPersentaseStandby()));
+            
+           // Pemicu visibilitas panel sesuai tipe perangkat yang diedit
+        updatePanelVisibility();
+        
+        // Posisikan ke tengah layar setelah data dimuat
+        setLocationRelativeTo(parent);
+        
         }
     }
     
@@ -156,6 +166,7 @@ public class TambahPerangkat extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jScrollPane1 = new javax.swing.JScrollPane();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         pilihJenis = new javax.swing.JComboBox<>();
@@ -426,17 +437,19 @@ public class TambahPerangkat extends javax.swing.JFrame {
                 .addGap(19, 19, 19))
         );
 
+        jScrollPane1.setViewportView(jPanel1);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 819, Short.MAX_VALUE)
         );
 
         pack();
@@ -628,6 +641,7 @@ public class TambahPerangkat extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblEnergi;
     private javax.swing.JLabel lblHarga;
     private javax.swing.JComboBox<String> pilihJenis;
