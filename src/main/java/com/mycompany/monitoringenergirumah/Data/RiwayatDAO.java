@@ -249,6 +249,21 @@ public class RiwayatDAO {
             return false;
         }
     }
+    
+    public boolean hapusRiwayatHariIni(int idPerangkat, int idUser) {
+        String sql = "DELETE FROM riwayat_penggunaan " +
+                     "WHERE id_perangkat = ? AND id_user = ? " +
+                     "AND tanggal = CURDATE()";
+        try (Connection conn = KoneksiDB.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, idPerangkat);
+            ps.setInt(2, idUser);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     // ─────────────────────────────────────────────
     // Helper query angka tunggal

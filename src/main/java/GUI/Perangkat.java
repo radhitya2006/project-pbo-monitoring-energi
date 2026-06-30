@@ -5,6 +5,7 @@
 package GUI;
 
 import com.mycompany.monitoringenergirumah.Data.PerangkatDAO;
+import com.mycompany.monitoringenergirumah.Data.RiwayatDAO;
 import com.mycompany.monitoringenergirumah.Service.SistemMonitoring;
 import com.mycompany.monitoringenergirumah.Model.PerangkatListrik;
 import com.mycompany.monitoringenergirumah.Service.AuthService;
@@ -199,6 +200,11 @@ public Perangkat(AuthService authService, SistemMonitoring sistem) {
 
                             statusBaru =
                                     PerangkatListrik.STATUS_NONAKTIF;
+                            RiwayatDAO riwayatDAO = new RiwayatDAO();
+                            riwayatDAO.hapusRiwayatHariIni(
+                                    p.getId(),
+                                    authService.getCurrentUser().getId()
+                            );
 
                         } else {
 

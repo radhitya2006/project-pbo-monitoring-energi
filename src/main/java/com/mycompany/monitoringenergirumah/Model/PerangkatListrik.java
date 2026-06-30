@@ -18,7 +18,7 @@ public abstract class PerangkatListrik {
     public static final String STATUS_NONAKTIF = "Nonaktif";
     public static final String STATUS_RUSAK    = "Rusak";
     
-    // 1. Variabel 'nama' kita ubah secara konseptual menjadi 'lokasi'
+    // 1. Variabel 'nama' diubah secara konseptual menjadi 'lokasi'
     private String lokasi; 
     private int daya;
     private double lamaPemakaian;
