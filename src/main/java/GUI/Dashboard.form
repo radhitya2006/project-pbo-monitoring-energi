@@ -604,7 +604,7 @@
                               <Component id="panelLineChartArea" pref="564" max="32767" attributes="0"/>
                               <Group type="102" attributes="0">
                                   <Component id="jLabel12" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace pref="280" max="32767" attributes="0"/>
+                                  <EmptySpace pref="283" max="32767" attributes="0"/>
                                   <Component id="jComboBox1" min="-2" pref="135" max="-2" attributes="0"/>
                               </Group>
                           </Group>

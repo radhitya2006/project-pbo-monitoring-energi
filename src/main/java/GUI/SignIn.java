@@ -44,7 +44,6 @@ public class SignIn extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         emailField = new javax.swing.JTextField();
         passField = new javax.swing.JPasswordField();
-        btnPass = new javax.swing.JButton();
         btnSignIn = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
         btnSignUp = new javax.swing.JButton();
@@ -66,12 +65,6 @@ public class SignIn extends javax.swing.JFrame {
         jLabel4.setText("Password");
 
         emailField.addActionListener(this::emailFieldActionPerformed);
-
-        btnPass.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
-        btnPass.setText("Lupa Password?");
-        btnPass.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 4));
-        btnPass.setBorderPainted(false);
-        btnPass.addActionListener(this::btnPassActionPerformed);
 
         btnSignIn.setBackground(new java.awt.Color(0, 204, 255));
         btnSignIn.setForeground(new java.awt.Color(255, 255, 255));
@@ -98,7 +91,6 @@ public class SignIn extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnPass)
                     .addComponent(showPass)
                     .addComponent(btnSignIn, javax.swing.GroupLayout.PREFERRED_SIZE, 489, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(passField, javax.swing.GroupLayout.PREFERRED_SIZE, 489, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -143,9 +135,7 @@ public class SignIn extends javax.swing.JFrame {
                 .addComponent(showPass)
                 .addGap(18, 18, 18)
                 .addComponent(btnSignIn, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnPass)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 39, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 67, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
                     .addComponent(btnSignUp))
@@ -169,15 +159,6 @@ public class SignIn extends javax.swing.JFrame {
     private void emailFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emailFieldActionPerformed
         passField.requestFocus();
     }//GEN-LAST:event_emailFieldActionPerformed
-
-    private void btnPassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPassActionPerformed
-        javax.swing.JOptionPane.showMessageDialog(
-                this,
-                "Silakan hubungi admin untuk melakukan reset password.",
-                "Lupa Password",
-                javax.swing.JOptionPane.INFORMATION_MESSAGE
-        );
-    }//GEN-LAST:event_btnPassActionPerformed
 
     private void btnSignUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignUpActionPerformed
         SignUp signup = new SignUp(this.authService);
@@ -271,7 +252,6 @@ public class SignIn extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnPass;
     private javax.swing.JButton btnSignIn;
     private javax.swing.JButton btnSignUp;
     private javax.swing.JTextField emailField;

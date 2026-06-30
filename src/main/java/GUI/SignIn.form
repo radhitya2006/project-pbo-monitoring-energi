@@ -45,7 +45,6 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
                   <Group type="103" groupAlignment="1" attributes="0">
-                      <Component id="btnPass" min="-2" max="-2" attributes="0"/>
                       <Component id="showPass" min="-2" max="-2" attributes="0"/>
                       <Component id="btnSignIn" alignment="1" min="-2" pref="489" max="-2" attributes="0"/>
                       <Component id="passField" alignment="1" min="-2" pref="489" max="-2" attributes="0"/>
@@ -101,9 +100,7 @@
                   <Component id="showPass" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="btnSignIn" min="-2" pref="32" max="-2" attributes="0"/>
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Component id="btnPass" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="39" max="32767" attributes="0"/>
+                  <EmptySpace pref="67" max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="btnSignUp" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -149,23 +146,6 @@
           </Events>
         </Component>
         <Component class="javax.swing.JPasswordField" name="passField">
-        </Component>
-        <Component class="javax.swing.JButton" name="btnPass">
-          <Properties>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Segoe UI" size="10" style="0"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Lupa Password?"/>
-            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-              <Border info="org.netbeans.modules.form.compat2.border.LineBorderInfo">
-                <LineBorder thickness="4"/>
-              </Border>
-            </Property>
-            <Property name="borderPainted" type="boolean" value="false"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPassActionPerformed"/>
-          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="btnSignIn">
           <Properties>
